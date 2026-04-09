@@ -1,0 +1,10 @@
+langchain
+chromadb
+beautifulsoup4
+pymupdf
+networkx
+streamlit
+requests
+fastapi
+uvicorn
+python-dotenv
