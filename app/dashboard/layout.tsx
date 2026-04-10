@@ -10,11 +10,11 @@ export default function DashboardLayout({
 }) {
   return (
     <RegulationProvider>
-      <div className="flex h-screen bg-background">
+      <div className="flex h-screen overflow-hidden bg-background">
         <Sidebar />
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <Header />
-          <main className="flex-1 overflow-y-auto p-10">
+          <main className="flex-1 overflow-y-auto p-10 relative">
             {children}
           </main>
           <StatusBar />

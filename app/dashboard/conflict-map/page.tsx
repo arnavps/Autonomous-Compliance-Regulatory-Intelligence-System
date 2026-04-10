@@ -18,7 +18,11 @@ import { cn } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
 
+import { useAuth } from "@/lib/auth-context";
+
 export default function ConflictMapPage() {
+  const { role } = useAuth();
+  const isReadOnly = role !== "COMPLIANCE";
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
 
@@ -39,8 +43,8 @@ export default function ConflictMapPage() {
     onError: () => toast.error("Failed to trigger impact report."),
   });
 
-  const activeConflicts = conflicts || [];
-  const selectedConflict = activeConflicts.find(c => c.id === selectedId) || activeConflicts[0];
+  const activeConflicts = Array.isArray(conflicts) ? conflicts : (conflicts as any)?.conflicts || [];
+  const selectedConflict = activeConflicts?.find((c: any) => c.id === selectedId) || activeConflicts[0];
 
   if (isLoading) {
     return (
@@ -89,18 +93,20 @@ export default function ConflictMapPage() {
             </button>
           </div>
           
-          <button
-            onClick={() => reportMutation.mutate(selectedConflict)}
-            disabled={reportMutation.isPending}
-            className="flex items-center gap-3 px-8 py-3 metallic-gold text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-50"
-          >
-            {reportMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Share2 className="h-4 w-4" />
-            )}
-            Export Intelligence
-          </button>
+          {!isReadOnly && (
+            <button
+              onClick={() => reportMutation.mutate(selectedConflict)}
+              disabled={reportMutation.isPending}
+              className="flex items-center gap-3 px-8 py-3 metallic-gold text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {reportMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Share2 className="h-4 w-4" />
+              )}
+              Export Intelligence
+            </button>
+          )}
         </div>
       </div>
 
@@ -300,11 +306,13 @@ export default function ConflictMapPage() {
                         <ExternalLink className="h-4 w-4" />
                         Source Link
                       </button>
-                      <button 
-                        onClick={() => toast.info("Drafting resolution memo for legal review...")}
-                        className="flex items-center justify-center gap-3 px-6 py-3 bg-primary text-white tech-label hover:opacity-90 transition-all shadow-xl shadow-primary/20">
-                        Mitigate Risk
-                      </button>
+                      {!isReadOnly && (
+                        <button 
+                          onClick={() => toast.info("Drafting resolution memo for legal review...")}
+                          className="flex items-center justify-center gap-3 px-6 py-3 bg-primary text-white tech-label hover:opacity-90 transition-all shadow-xl shadow-primary/20">
+                          Mitigate Risk
+                        </button>
+                      )}
                    </div>
                 </div>
                 )}

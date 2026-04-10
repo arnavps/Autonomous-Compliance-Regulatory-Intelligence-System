@@ -35,11 +35,11 @@ export function Header() {
   };
 
   return (
-    <header className="h-[56px] glass-topbar fixed top-0 left-0 right-0 z-50 flex items-center px-4">
-      {/* Left Cluster */}
-      <div className="flex items-center gap-2 w-[240px]">
-        <Shield className="h-5 w-5 text-amber-primary fill-amber-primary/20" />
-        <span className="font-serif text-lg font-bold tracking-tight text-foreground">ACRIS</span>
+    <header className="h-[56px] w-full glass-topbar flex items-center px-6 shrink-0">
+      {/* Left Cluster - Context Label */}
+      <div className="flex items-center gap-3">
+        <span className="tech-label text-amber-primary/60">Sovereign Node</span>
+        <div className="h-4 w-[0.5px] bg-border/20" />
       </div>
 
       {/* Centered Search */}

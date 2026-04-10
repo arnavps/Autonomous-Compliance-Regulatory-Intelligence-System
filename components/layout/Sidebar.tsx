@@ -30,26 +30,26 @@ export function Sidebar() {
     switch (role) {
       case "LAWYER":
         return [
-          { name: "Case Research", href: "/qa", icon: Scale }, // Using Q&A for research in this mock
-          { name: "Conflict Explorer", href: "/conflicts", icon: Map },
-          { name: "Amendment Workbench", href: "/amendments", icon: AppWindow },
-          { name: "Audit Trail", href: "/audit", icon: History },
+          { name: "Case Research", href: "/dashboard/case-research", icon: Scale },
+          { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
+          { name: "Amendment Workbench", href: "/dashboard/amendment-workbench", icon: AppWindow },
+          { name: "Audit Trail", href: "/dashboard/audit-trail", icon: History },
         ];
       case "RISK":
         return [
-          { name: "Risk Dashboard", href: "/risk", icon: Gauge },
-          { name: "Early Warning Radar", href: "/radar", icon: Radar },
-          { name: "Conflict Explorer", href: "/conflicts", icon: Map },
-          { name: "Exposure Matrix", href: "/risk", icon: LayoutGrid }, // Pointing to Risk for now
+          { name: "Risk Dashboard", href: "/dashboard/risk-dashboard", icon: Gauge },
+          { name: "Early Warning Radar", href: "/dashboard/early-warning", icon: Radar },
+          { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
+          { name: "Exposure Matrix", href: "/dashboard/exposure-matrix", icon: LayoutGrid },
         ];
       case "COMPLIANCE":
       default:
         return [
-          { name: "Regulatory Q&A", href: "/qa", icon: MessageSquare },
-          { name: "Conflict Explorer", href: "/conflicts", icon: Map },
-          { name: "Early Warning Radar", href: "/radar", icon: Radar },
-          { name: "Document Analyzer", href: "/documents", icon: FileSearch },
-          { name: "Impact Reports", href: "/reports", icon: FileCheck },
+          { name: "Regulatory Q&A", href: "/dashboard/q-and-a", icon: MessageSquare },
+          { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
+          { name: "Early Warning Radar", href: "/dashboard/early-warning", icon: Radar },
+          { name: "Document Analyzer", href: "/dashboard/doc-analyzer", icon: FileSearch },
+          { name: "Impact Reports", href: "/dashboard/impact-reports", icon: FileCheck },
         ];
     }
   };
@@ -58,17 +58,22 @@ export function Sidebar() {
 
   return (
     <div className={cn(
-      "flex h-screen flex-col glass-sidebar fixed left-0 top-0 transition-all duration-300 z-40 pt-[56px]",
+      "flex h-full flex-col glass-sidebar transition-all duration-300 relative",
       isCollapsed ? "w-[64px]" : "w-[240px]"
     )}>
-      {/* Top Section - Logo Only */}
-      {!isCollapsed && (
-        <div className="px-6 py-4">
-          <div className="h-6 w-[100px] flex items-center">
-            <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-amber-primary/40 uppercase">Intelligence</span>
+      {/* Top Section - Brand */}
+      <div className={cn(
+        "flex items-center gap-2 px-6 py-4",
+        isCollapsed ? "justify-center px-0" : ""
+      )}>
+        <Shield className="h-5 w-5 text-amber-primary fill-amber-primary/20 shrink-0" />
+        {!isCollapsed && (
+          <div className="flex flex-col">
+            <span className="font-serif text-lg font-bold tracking-tight text-foreground leading-none">ACRIS</span>
+            <span className="text-[8px] font-mono font-bold tracking-[0.2em] text-amber-primary/40 uppercase mt-0.5">Intelligence</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Navigation */}
       <nav className={cn(

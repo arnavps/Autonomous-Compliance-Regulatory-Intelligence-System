@@ -115,6 +115,19 @@
     border-bottom: 1px solid #884e00;
     box-shadow: none;
   }
+  .glass-sidebar {
+    background: var(--sand-sidebar, rgba(247, 245, 240, 0.85));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 0.5px solid rgba(136, 78, 0, 0.1);
+  }
+
+  .glass-topbar {
+    background: var(--sand-topbar, rgba(247, 245, 240, 0.92));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 0.5px solid rgba(136, 78, 0, 0.1);
+  }
 }
 
 @keyframes ticker {
