@@ -1,7 +1,11 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import shutil
 import os
+
+class QueryRequest(BaseModel):
+    query: str
 
 app = FastAPI(title="RegIntel API", version="1.0")
 
@@ -38,4 +42,16 @@ async def upload_document(file: UploadFile = File(...)):
         "message": "File uploaded successfully",
         "filename": file.filename,
         "path": file_path
+    }
+
+@app.post("/api/ask")
+def query_acris(request: QueryRequest):
+    # Simulated compliance response for UI testing
+    return {
+        "answer": f"Based on our analysis of the regulatory corpus regarding '{request.query}', the latest RBI guidelines stipulate strict enforcement of algorithmic lending caps. You must ensure all third-party API partnerships undergo a quarterly audit and report compliance directly to the supervisor.",
+        "confidence": 88.5,
+        "citations": [
+            "RBI/2024-25/112 (Digital Lending Framework)",
+            "SEBI Circular CIR/2023/89 (Algorithmic Trading)"
+        ]
     }
