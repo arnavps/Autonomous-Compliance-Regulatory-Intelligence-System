@@ -59,7 +59,7 @@ export default function LoginPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-sand-bg flex items-center justify-center p-6 bg-fixed bg-[url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.65\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\" opacity=\"0.03\"/%3E%3C/svg%3E')]">
+    <div className="min-h-screen bg-sand-bg flex items-center justify-center p-6 bg-noise">
       <div className="w-full max-w-[1000px]">
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-12">

@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
-@import "tailwindcss";
-@config "../tailwind.config.ts";
-
 :root {
   --background: #F7F5F0;
   --foreground: #1A1714;
@@ -11,17 +8,17 @@
   --card: rgba(255, 253, 248, 0.72);
   --card-foreground: #1A1714;
  
-  --primary: #C17B2F;
+  --primary: #884e00;
   --primary-foreground: #ffffff;
  
   --muted: rgba(247, 245, 240, 0.85);
   --muted-foreground: #524438;
  
-  --border: rgba(193, 123, 47, 0.12);
-  --input: rgba(193, 123, 47, 0.12);
-  --ring: #C17B2F;
+  --border: rgba(136, 78, 0, 0.1);
+  --input: rgba(136, 78, 0, 0.1);
+  --ring: #884e00;
  
-  --radius: 16px;
+  --radius: 0px;
 }
 
 @layer base {
@@ -29,66 +26,75 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-dm-sans), sans-serif;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-    background-attachment: fixed;
+    @apply bg-background text-on-surface antialiased overflow-x-hidden selection:bg-primary/20;
+    font-family: var(--font-inter), sans-serif;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuANrhpb_yFupzZbbs4DGrZ5GsF3oJ0eRxJhNORcy-mefEuITZRgPimdTiOMywM2fb2-X6dmNEYyAFtaUdQf_Znu2UGvFHhPiYRQTGV0B9FcUpz-sLlFbL0oO2Gkul0BcW4lSjyDc-e7k3-sHIf8-2m76CnruXIoZD7aHllNOyai0m2KulVIQ_5rPyHhcgNvFQRGDuZjiLZgoKOaQ3F_eUWLWawHxTVQex5Cbr0kVceWlTJMgA_vvAiKfpHccQpR_AzFZQZL3jdhZEI);
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
-    font-style: normal;
+    @apply font-headline;
   }
 }
 
 @layer components {
-  .glass-standard {
-    background: rgba(255, 253, 248, 0.72);
-    backdrop-filter: blur(12px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.60);
-    border-bottom: 1px solid rgba(193, 123, 47, 0.12);
-    box-shadow: 0 4px 24px rgba(26, 23, 20, 0.06), 
-                inset 0 1px 0 rgba(255,255,255,0.8);
-    border-radius: 16px;
+  .chiseled {
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8), 0 -1px 1px rgba(0, 0, 0, 0.05);
+    letter-spacing: -0.02em;
   }
 
-  .glass-elevated {
-    background: rgba(255, 253, 248, 0.90);
-    backdrop-filter: blur(20px) saturate(1.6);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    box-shadow: 0 8px 40px rgba(26, 23, 20, 0.12);
-    border-radius: 20px;
+  .glass-12 {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(136, 78, 0, 0.1);
   }
 
-  .glass-sidebar {
-    background: rgba(247, 245, 240, 0.85);
-    backdrop-filter: blur(16px);
-    border-right: 1px solid rgba(193, 123, 47, 0.12);
+  .glass-24 {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(136, 78, 0, 0.2);
   }
 
-  .glass-topbar {
-    background: rgba(247, 245, 240, 0.92);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(193, 123, 47, 0.10);
+  .amber-glow {
+    background: radial-gradient(circle at center, rgba(136, 78, 0, 0.08) 0%, transparent 70%);
   }
 
-  .amber-glow-card {
-    background: linear-gradient(135deg, 
-      rgba(255, 253, 248, 0.85) 0%, 
-      rgba(232, 168, 76, 0.08) 100%);
-    border: 1px solid rgba(193, 123, 47, 0.25);
-    box-shadow: 0 4px 24px rgba(193, 123, 47, 0.12),
-                inset 0 1px 0 rgba(255,255,255,0.9);
+  .ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(136, 78, 0, 0.03);
+    border-bottom: 0.5px solid rgba(136, 78, 0, 0.1);
   }
 
-  .conflict-card {
-    background: linear-gradient(135deg,
-      rgba(255, 253, 248, 0.85) 0%,
-      rgba(192, 57, 43, 0.05) 100%);
-    border: 1px solid rgba(192, 57, 43, 0.20);
-    border-left: 3px solid #C0392B;
+  .ticker {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker 60s linear infinite;
+  }
+
+  .logo-reflection {
+    position: relative;
+  }
+
+  .logo-reflection::after {
+    content: "";
+    position: absolute;
+    bottom: -50%;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(136, 78, 0, 0.1), transparent);
+    transform: scaleY(-0.5);
+    opacity: 0.2;
+    filter: blur(2px);
   }
 
   .tech-label {
     @apply uppercase tracking-widest text-[10px] font-bold font-mono;
   }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
