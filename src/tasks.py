@@ -1,5 +1,6 @@
 import logging
 import json
+import time
 from typing import Dict, Any
 from celery import current_task
 from src.celery_app import celery_app
@@ -45,7 +46,6 @@ def run_ingestion_pipeline(self, data_sources: list = None) -> Dict[str, Any]:
             )
             
             # Simulate processing time
-            import time
             time.sleep(2)
         
         result = {
@@ -106,7 +106,6 @@ def generate_impact_report(self, regulation_data: Dict[str, Any]) -> Dict[str, A
         self.update_state(state="PROGRESS", meta={"status": "Analyzing regulatory changes"})
         
         # Mock analysis steps (replace with actual implementation)
-        import time
         time.sleep(3)
         
         self.update_state(state="PROGRESS", meta={"status": "Mapping impacted policies"})

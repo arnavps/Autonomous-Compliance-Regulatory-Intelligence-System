@@ -42,10 +42,18 @@ class ModelRouter:
             # Fallback: OpenAI (GPT-4o-mini)
             openai_api_key = os.getenv("OPENAI_API_KEY")
             if openai_api_key and openai_api_key != "your_openai_api_key_here":
+                openai_base_url = os.getenv("OPENAI_BASE_URL")
+                openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+                
+                client_kwargs = {}
+                if openai_base_url:
+                    client_kwargs["base_url"] = openai_base_url
+                
                 self.fallback_model = ChatOpenAI(
-                    model="gpt-4o-mini",
+                    model=openai_model,
                     api_key=openai_api_key,
-                    temperature=0
+                    temperature=0,
+                    **client_kwargs
                 )
                 logger.info("Fallback OpenAI model initialized successfully")
             else:
