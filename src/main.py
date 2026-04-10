@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+import shutil
+import os
 
 app = FastAPI(title="RegIntel API", version="1.0")
 
@@ -18,3 +20,22 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+@app.post("/api/upload")
+async def upload_document(file: UploadFile = File(...)):
+    # Define save directory
+    save_dir = os.path.join("data", "policies")
+    os.makedirs(save_dir, exist_ok=True)
+    
+    file_path = os.path.join(save_dir, file.filename)
+    
+    # Save the file safely
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {
+        "status": "success",
+        "message": "File uploaded successfully",
+        "filename": file.filename,
+        "path": file_path
+    }
