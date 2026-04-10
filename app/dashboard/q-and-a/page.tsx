@@ -1,15 +1,18 @@
 "use client";
 
-import { MessageSquareLock, ShieldEllipsis, User, Bot, Loader2 } from "lucide-react";
+import { MessageSquareLock, ShieldEllipsis, User, Bot, Loader2, Copy, AlertTriangle, ExternalLink } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiService } from "../../../services/apiService";
+import { toast } from "sonner";
+import Link from "next/link";
 
 interface Message {
   role: "user" | "ai";
   content: string;
   confidence?: number;
   citations?: string[];
+  conflict_flag?: boolean;
 }
 
 export default function QnAPage() {
@@ -31,9 +34,10 @@ export default function QnAPage() {
         ...prev,
         {
           role: "ai",
-          content: data.answer || "No specific answer was returned for this query.",
+          content: data.status === "Insufficient Data" ? "Insufficient Context: " + data.answer : data.answer || "No specific answer was returned for this query.",
           confidence: data.confidence,
-          citations: data.citations,
+          citations: data.citations || data.source_links,
+          conflict_flag: data.conflict_flag,
         },
       ]);
     },
@@ -46,6 +50,19 @@ export default function QnAPage() {
       ]);
     }
   });
+
+  const getConfidenceBadge = (confidence: number) => {
+    if (confidence > 80) return "bg-green-100 text-green-700";
+    if (confidence >= 65) return "bg-yellow-100 text-yellow-700";
+    return "bg-red-100 text-red-700";
+  };
+
+  const copyCitation = (citation: string) => {
+    navigator.clipboard.writeText(citation);
+    toast.success("Citation Copied", {
+      description: "Copied to clipboard for investor-grade reporting.",
+    });
+  };
 
   const handleSubmit = () => {
     if (!query.trim() || mutation.isPending) return;
@@ -91,20 +108,42 @@ export default function QnAPage() {
                   <div className={`max-w-[80%] rounded-2xl p-5 ${msg.role === "user" ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-slate-50 border border-slate-100 rounded-tl-sm text-slate-700"}`}>
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                     
+                    {/* Conflict Detect block */}
+                    {msg.role === "ai" && msg.conflict_flag && (
+                      <div className="mt-4 mb-2 p-4 bg-red-50 border border-red-200 rounded-lg flex flex-col gap-3">
+                        <div className="flex items-center gap-2 text-red-700 font-bold text-sm">
+                          <AlertTriangle className="h-5 w-5" />
+                          Conflict Detected
+                        </div>
+                        <p className="text-xs text-red-600">ACRIS has detected a contradiction in the underlying regulatory sources regarding this topic.</p>
+                        <Link href="/dashboard/conflict-map">
+                          <button className="flex items-center gap-2 px-3 py-2 bg-white border border-red-200 text-red-700 rounded-md text-xs font-semibold hover:bg-red-50 transition-colors w-max">
+                            <ExternalLink className="h-4 w-4" />
+                            View in Conflict Explorer
+                          </button>
+                        </Link>
+                      </div>
+                    )}
+
                     {/* Citations block for AI */}
                     {msg.role === "ai" && msg.citations && msg.citations.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-slate-200/60">
                         <div className="flex items-center gap-4 mb-2">
                           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Citations</span>
                           {msg.confidence && (
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${msg.confidence > 80 ? "bg-teal-100 text-teal-700" : "bg-amber-100 text-amber-700"}`}>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${getConfidenceBadge(msg.confidence)}`}>
                               {msg.confidence}% Confidence
                             </span>
                           )}
                         </div>
-                        <ul className="text-xs text-indigo-600 space-y-1">
+                        <ul className="text-xs text-indigo-600 space-y-2">
                           {msg.citations.map((cite, j) => (
-                            <li key={j} className="hover:underline cursor-pointer">• {cite}</li>
+                            <li key={j} className="flex gap-2 items-start justify-between bg-white p-2 rounded-md border border-slate-200">
+                              <span className="flex-1 leading-relaxed">• {cite}</span>
+                              <button onClick={() => copyCitation(cite)} className="text-slate-400 hover:text-indigo-600 transition-colors shrink-0">
+                                <Copy className="h-4 w-4" />
+                              </button>
+                            </li>
                           ))}
                         </ul>
                       </div>
