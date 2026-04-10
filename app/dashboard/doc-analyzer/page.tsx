@@ -1,36 +1,31 @@
 "use client";
 
-import { FileSearch, UploadCloud, CheckCircle2 } from "lucide-react";
+import { FileSearch, UploadCloud, CheckCircle2, Share2, FolderOpen } from "lucide-react";
 import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiService } from "../../../services/apiService";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function DocAnalyzerPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFiles, setUploadedFiles] = useState<{name: string, date: string, clauses: number}[]>([
-    { name: "Indian_Bank_KYC_Policy_v4.2.pdf", date: "Sep 28, 2024", clauses: 42 },
-    { name: "Retail_Lending_Guidelines_Draft.docx", date: "Sep 15, 2024", clauses: 18 }
+    { name: "Indian_Bank_KYC_Policy_v4.2.pdf", date: "SEP 28, 2024", clauses: 42 },
+    { name: "Retail_Lending_Guidelines_Draft.docx", date: "SEP 15, 2024", clauses: 18 }
   ]);
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) => apiService.uploadDocument(formData),
     onSuccess: (data) => {
-      // Create a pseudo-analysis representation for visual feedback
       setUploadedFiles(prev => [
         { 
           name: data.filename || "Uploaded_Document", 
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), 
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase(), 
           clauses: Math.floor(Math.random() * 50) + 10 
         },
         ...prev
       ]);
-      toast.success(`Successfully uploaded and parsed: ${data.filename || 'Document'}`);
-    },
-    onError: (error) => {
-      // The Axios interceptor fires a generic toast for 5xx/429 errors.
-      // We can reset state or perform minor changes here if we want.
-      // E.g., we do not need browser alert().
+      toast.success(`Verified: ${data.filename || 'Document'} is now indexed.`);
     },
     onSettled: () => {
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -44,84 +39,103 @@ export default function DocAnalyzerPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append("file", file);
-
     mutation.mutate(formData);
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-12">
-        <h1 className="text-3xl font-bold font-aventa tracking-tight">Internal Policy Analyzer</h1>
-        <p className="text-slate-500 font-garamond italic">Upload your internal policies (DOCX/PDF) to map them against the latest regulations.</p>
+    <div className="max-w-5xl mx-auto pb-20">
+      <div className="mb-20">
+        <div className="tech-label text-primary mb-4">Neural Ingest</div>
+        <h1 className="text-4xl font-bold font-serif italic tracking-tight text-foreground">Internal Policy Analyzer</h1>
+        <p className="text-muted-foreground font-serif text-lg mt-2 opacity-70">Cross-reference internal documentation against global regulatory vectors.</p>
       </div>
 
       <div 
         onClick={handleUploadClick}
-        className={`bg-white p-12 rounded-[3rem] border-2 border-dashed transition-all group flex flex-col items-center justify-center text-center cursor-pointer
-          ${mutation.isPending ? 'border-indigo-400 bg-indigo-50/30 opacity-70' : 'border-slate-200 hover:border-indigo-400 hover:bg-slate-50/50'}
-        `}
+        className={cn(
+          "relative group cursor-pointer transition-all duration-500",
+          mutation.isPending ? "opacity-70 pointer-events-none" : ""
+        )}
       >
-        <div className="h-20 w-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-          {mutation.isPending ? (
-            <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <UploadCloud className="h-10 w-10 text-indigo-600" />
-          )}
-        </div>
-        <h3 className="text-xl font-bold mb-2">
-          {mutation.isPending ? "Uploading & Analyzing..." : "Upload Internal Documentation"}
-        </h3>
-        <p className="text-slate-400 max-w-sm mb-8">
-          {mutation.isPending ? "Please wait while our parsing agents read the document." : "Drag and drop your policy files here, or browse your files. We support PDF, DOCX, and TXT."}
-        </p>
-        <div className="flex gap-4">
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            className="hidden" 
-            accept=".pdf,.docx,.txt"
-          />
-          <button 
-            type="button"
-            disabled={mutation.isPending}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 disabled:bg-slate-400"
-          >
-            Browse Files
-          </button>
-          <button 
-            type="button" 
-            onClick={(e) => {
-              e.stopPropagation();
-              toast.info("SharePoint integration requires Enterprise plan.");
-            }}
-            className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold disabled:opacity-50"
-          >
-            Connect SharePoint
-          </button>
+        <div className="absolute -inset-[0.5px] bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="glass-intel p-20 flex flex-col items-center justify-center text-center border-dashed">
+          <div className="h-24 w-24 bg-surface-container border-[0.5px] border-border/20 flex items-center justify-center mb-10 group-hover:border-primary/40 transition-all">
+            {mutation.isPending ? (
+              <div className="w-10 h-10 border-[0.5px] border-primary border-t-transparent animate-spin" />
+            ) : (
+              <UploadCloud className="h-10 w-10 text-primary/40 group-hover:text-primary transition-colors" />
+            )}
+          </div>
+          
+          <h3 className="text-2xl font-bold font-serif italic mb-4">
+            {mutation.isPending ? "Verifying Origin..." : "Ingest Internal Policy"}
+          </h3>
+          <p className="text-muted-foreground font-serif text-sm max-w-sm mb-12 opacity-60">
+            {mutation.isPending 
+              ? "Parsing neural structure of the document across the regulatory mesh." 
+              : "Ingest PDF or DOCX files for autonomous compliance validation."}
+          </p>
+
+          <div className="flex gap-6">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              className="hidden" 
+              accept=".pdf,.docx,.txt"
+            />
+            <button 
+              type="button"
+              className="px-10 py-3 bg-primary text-white text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-amber-900 transition-colors shadow-2xl"
+            >
+              LOCATE FILES
+            </button>
+            <button 
+              type="button" 
+              onClick={(e) => {
+                e.stopPropagation();
+                toast.info("SharePoint Vector Link coming in v1.1");
+              }}
+              className="px-10 py-3 bg-surface-container border-[0.5px] border-border/20 text-[10px] font-mono font-bold uppercase tracking-widest hover:border-border transition-colors"
+            >
+              SHAREPOINT LINK
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="mt-12">
-        <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6">Recently Analyzed</h4>
-        <div className="space-y-4">
+      <div className="mt-24">
+        <div className="flex items-center justify-between mb-10 border-b-[0.5px] border-border/10 pb-6">
+          <div className="tech-label text-muted-foreground/40">Audit History</div>
+          <div className="flex gap-4">
+             <button className="p-2 text-muted-foreground/40 hover:text-primary transition-colors"><FolderOpen className="h-4 w-4" /></button>
+             <button className="p-2 text-muted-foreground/40 hover:text-primary transition-colors"><Share2 className="h-4 w-4" /></button>
+          </div>
+        </div>
+
+        <div className="space-y-[0.5px] bg-border/10">
           {uploadedFiles.map((file, i) => (
-            <div key={i} className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                  {i === 0 && uploadedFiles.length > 2 ? <CheckCircle2 className="h-5 w-5" /> : <FileSearch className="h-5 w-5" />}
+            <div key={i} className="bg-white p-6 flex items-center justify-between group hover:bg-surface-container-low transition-all">
+              <div className="flex items-center gap-8">
+                <div className="h-10 w-10 bg-surface-container flex items-center justify-center border-[0.5px] border-border/20 group-hover:border-primary/20 transition-all">
+                  {i === 0 ? <CheckCircle2 className="h-5 w-5 text-tertiary" /> : <FileSearch className="h-5 w-5 text-muted-foreground/30" />}
                 </div>
-                <div>
-                  <div className="text-sm font-bold">{file.name}</div>
-                  <div className="text-xs text-slate-400">Analyzed {file.date} • {file.clauses} Clauses Mapped</div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold font-serif italic text-foreground tracking-tight">{file.name}</span>
+                  <div className="flex items-center gap-4 mt-1">
+                    <span className="font-mono text-[9px] text-muted-foreground/40 uppercase font-bold tracking-tighter">Analyzed {file.date}</span>
+                    <span className="h-1 w-1 rounded-full bg-border/30" />
+                    <span className="font-mono text-[9px] text-primary font-bold uppercase tracking-tighter">{file.clauses} CLAUSES MAPPED</span>
+                  </div>
                 </div>
               </div>
               <button 
-                onClick={() => toast.success(`Re-running mapping for ${file.name}...`)}
-                className="text-sm font-bold text-indigo-600 hover:underline">Re-run Mapping</button>
+                onClick={() => toast.success(`Re-running sync for ${file.name}...`)}
+                className="tech-label text-muted-foreground/30 hover:text-primary transition-colors">
+                RE-SYNC VECTOR
+              </button>
             </div>
           ))}
         </div>

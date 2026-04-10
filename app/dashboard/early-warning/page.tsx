@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Radar, Zap, X, AlertTriangle } from "lucide-react";
+import { Radar, Zap, ShieldAlert, ChevronRight } from "lucide-react";
 import apiClient from "@/lib/axios";
+import { cn } from "@/lib/utils";
 
 export default function EarlyWarningPage() {
   const [activeAnalysis, setActiveAnalysis] = useState<number | null>(null);
@@ -24,66 +25,107 @@ export default function EarlyWarningPage() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="max-w-7xl mx-auto">
+      <div className="flex items-end justify-between mb-16 pb-8 border-b-[0.5px] border-border/10">
         <div>
-          <h1 className="text-3xl font-bold font-aventa tracking-tight">Early Warning Radar</h1>
-          <p className="text-slate-500 font-garamond italic">Predictive alerts based on draft papers and cross-jurisdictional shifts.</p>
+          <div className="tech-label text-primary mb-4">Signal Intelligence</div>
+          <h1 className="text-4xl font-bold font-serif italic tracking-tight text-foreground">Early Warning Radar</h1>
+          <p className="text-muted-foreground font-serif text-lg mt-2 opacity-70">Predictive analysis of draft regulations and cross-jurisdictional shifts.</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-teal-50 border border-teal-100 rounded-full">
-          <Zap className="h-4 w-4 text-teal-600 filling-teal-600" />
-          <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">Predictive Mode On</span>
+        <div className="flex items-center gap-4 px-6 py-3 bg-surface-container border-[0.5px] border-border/20">
+          <Zap className="h-4 w-4 text-primary animate-pulse" />
+          <span className="text-[10px] font-mono font-bold text-foreground tracking-widest">REAL-TIME SURVEILLANCE ACTIVE</span>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="flex flex-col justify-center items-center h-96 gap-6">
+          <div className="h-12 w-[0.5px] bg-primary/20 animate-pulse" />
+          <div className="tech-label text-muted-foreground/40 animate-pulse">Scanning Global Drafts</div>
         </div>
       ) : warnings.length === 0 ? (
-        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-12 text-center flex flex-col items-center">
-          <Radar className="h-12 w-12 text-slate-300 mb-4" />
-          <h3 className="text-xl font-bold text-slate-700 mb-2">No Active Warnings</h3>
-          <p className="text-slate-500 max-w-md">Our intelligence pipeline is continually monitoring for new draft regulations and consultation papers. At this moment, no high-risk drafts have been detected.</p>
+        <div className="bg-surface-container-low border-[0.5px] border-border/20 p-20 text-center flex flex-col items-center">
+          <Radar className="h-16 w-16 text-muted-foreground/10 mb-6" />
+          <h3 className="text-2xl font-bold text-foreground mb-4">Null Detected</h3>
+          <p className="text-muted-foreground font-serif italic max-w-md opacity-60 text-lg">
+            Our intelligence pipeline is continually monitoring for new draft regulations. 
+            At this moment, no high-risk deviations have been detected in the vector noise.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
           {warnings.map((warning, i) => (
-            <div key={warning.id || i} className={`bg-white p-6 rounded-3xl border ${warning.urgency === 'High' ? 'border-amber-200 shadow-amber-500/10' : 'border-slate-200'} shadow-sm hover:shadow-md transition-all flex flex-col`}>
-              <div className="h-2 w-full bg-slate-100 rounded-full mb-6 overflow-hidden">
-                <div className={`h-full ${warning.urgency === 'High' ? 'bg-amber-500 w-3/4' : warning.urgency === 'Medium' ? 'bg-amber-300 w-1/2' : 'bg-teal-500 w-1/3'}`} />
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-600">DRAFT STAGE • {warning.issuing_body}</span>
-                {warning.urgency === 'High' ? (
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                ) : (
-                  <Radar className="h-4 w-4 text-teal-500" />
-                )}
-              </div>
-              <h4 className="font-bold mb-2 line-clamp-2" title={warning.title}>{warning.title}</h4>
-              <p className="text-sm text-slate-500 mb-4 line-clamp-3" title={warning.proposed_change}>{warning.proposed_change}</p>
-
-              <div className="pt-4 mt-auto border-t border-slate-50 flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-400">{warning.probability} Probability</span>
-                <button
-                  onClick={() => setActiveAnalysis(activeAnalysis === i ? null : i)}
-                  className="text-xs font-bold text-indigo-600 hover:underline">
-                  {activeAnalysis === i ? "Hide Analysis" : "View Analysis"}
-                </button>
-              </div>
-
-              {/* Expanded Analysis View */}
-              {activeAnalysis === i && (
-                <div className="mt-4 p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl animate-in fade-in slide-in-from-top-2">
-                  <h5 className="text-sm font-bold text-indigo-900 mb-2 border-b border-indigo-100 pb-2">AI Impact Analysis</h5>
-                  <ul className="text-xs text-indigo-800 space-y-2 list-disc pl-4">
-                    <li><strong>Urgency Level:</strong> <span className={warning.urgency === 'High' ? 'text-amber-600 font-bold' : ''}>{warning.urgency}</span></li>
-                    <li><strong>Affected Entities:</strong> {warning.affected_entities}</li>
-                    <li><strong>Source:</strong> <a href={warning.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600">View Original Draft</a></li>
-                  </ul>
+            <div 
+              key={warning.id || i} 
+              className={cn(
+                "bg-white border-[0.5px] p-8 shadow-[-10px_0_30px_rgba(0,0,0,0.02)] transition-all flex flex-col group relative",
+                warning.urgency === 'High' ? 'border-primary/40' : 'border-border/20'
+              )}
+            >
+              {warning.urgency === 'High' && (
+                <div className="absolute top-0 right-0 p-2">
+                   <ShieldAlert className="h-4 w-4 text-primary" />
                 </div>
               )}
+              
+              <div className="flex items-center justify-between mb-8">
+                <span className="tech-label text-muted-foreground/40">{warning.issuing_body} • DRAFT</span>
+                <span className={cn(
+                  "font-mono text-[9px] font-bold px-2 py-1",
+                  warning.urgency === 'High' ? "text-primary bg-primary/5" : "text-muted-foreground/40 bg-muted"
+                )}>
+                  {warning.urgency.toUpperCase()}
+                </span>
+              </div>
+
+              <div className="h-[1px] w-full bg-border/10 mb-8" />
+              
+              <h4 className="text-xl font-bold mb-4 font-serif italic leading-snug group-hover:text-primary transition-colors cursor-default">
+                {warning.title}
+              </h4>
+              <p className="text-sm text-muted-foreground font-serif leading-relaxed mb-8 opacity-80">
+                {warning.proposed_change}
+              </p>
+
+              <div className="mt-auto space-y-6">
+                 <div className="flex justify-between items-end border-b-[0.5px] border-border/10 pb-4">
+                    <div className="flex flex-col">
+                       <span className="tech-label text-muted-foreground/30 mb-1">Probability</span>
+                       <span className="font-mono text-xs font-bold text-foreground">{warning.probability}</span>
+                    </div>
+                    <button
+                      onClick={() => setActiveAnalysis(activeAnalysis === i ? null : i)}
+                      className="group/btn flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-tighter text-primary hover:tracking-normal transition-all"
+                    >
+                      {activeAnalysis === i ? "CLOSE" : "EXPAND INTELLIGENCE"}
+                      <ChevronRight className={cn("h-3 w-3 transition-transform", activeAnalysis === i ? "rotate-90" : "")} />
+                    </button>
+                 </div>
+
+                 {activeAnalysis === i && (
+                   <div className="p-6 bg-surface-container-low border-[0.5px] border-border/20 animate-in fade-in slide-in-from-top-4 duration-500">
+                     <div className="tech-label text-primary/60 mb-4">Neural Impact Analysis</div>
+                     <div className="space-y-4">
+                        <div className="flex flex-col">
+                           <span className="text-[9px] uppercase text-muted-foreground/40 font-mono mb-1">Affected Entities</span>
+                           <span className="text-xs font-serif italic text-foreground">{warning.affected_entities}</span>
+                        </div>
+                        <div className="flex flex-col">
+                           <span className="text-[9px] uppercase text-muted-foreground/40 font-mono mb-1">Strategy Recommendation</span>
+                           <span className="text-xs font-serif italic text-foreground">Proactive adjustment of compliance vectors recommended.</span>
+                        </div>
+                        <a 
+                          href={warning.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="block pt-2 text-[10px] font-mono font-bold text-secondary hover:underline"
+                        >
+                          OPEN SOURCE DOCUMENT →
+                        </a>
+                     </div>
+                   </div>
+                 )}
+              </div>
             </div>
           ))}
         </div>

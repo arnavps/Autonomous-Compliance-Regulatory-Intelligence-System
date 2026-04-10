@@ -1,58 +1,85 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
-:root {
-  --background: 210 40% 98%; /* Ivory/FAFAFA */
-  --foreground: 222.2 84% 4.9%; /* Slate 900 */
-  
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
- 
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
- 
-  --primary: 243.4 75.4% 58.6%; /* Indigo 600 */
-  --primary-foreground: 210 40% 98%;
- 
-  --secondary: 180 100% 25.1%; /* Teal #008080 */
-  --secondary-foreground: 210 40% 98%;
- 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
- 
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 84% 4.9%;
- 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+:root {
+  /* Sovereign Ledger Palette - Numerical precision & Warm Paper */
+  --background: #fbf9f4;
+  --foreground: #1b1c19;
+  
+  --card: #ffffff;
+  --card-foreground: #1b1c19;
  
-  --radius: 0.5rem;
+  --popover: #ffffff;
+  --popover-foreground: #1b1c19;
+ 
+  --primary: #884e00; /* Amber Gold */
+  --primary-foreground: #ffffff;
+ 
+  --secondary: #305f9b; /* RBI Blue */
+  --secondary-foreground: #ffffff;
+  
+  --tertiary: #18693a; /* SEBI Green */
+  --tertiary-foreground: #ffffff;
+ 
+  --muted: #f0eee9;
+  --muted-foreground: #524438;
+ 
+  --accent: #ffdcbf;
+  --accent-foreground: #2d1600;
+ 
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+
+  --border: #d7c3b3;
+  --input: #d7c3b3;
+  --ring: #884e00;
+ 
+  --radius: 0px; /* Mandatory 0px mandate */
+
+  /* Surface Hierarchy */
+  --surface-container-low: #f5f3ee;
+  --surface-container: #f0eee9;
+  --surface-container-high: #eae8e3;
+  --surface-container-highest: #e4e2dd;
 }
 
 @layer base {
   * {
     @apply border-border;
+    border-radius: var(--radius) !important; /* Enforce 0px radius */
   }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-inter), sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-newsreader), serif;
+    font-style: italic;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-sm transition-all hover:shadow-md;
+  .glass-intel {
+    background: rgba(255, 253, 248, 0.72);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(133, 116, 102, 0.2);
+    box-shadow: 0 4px 32px rgba(82, 68, 56, 0.08);
   }
 
-  .nav-item-active {
-    @apply bg-primary/10 text-primary font-semibold;
+  .tech-label {
+    font-family: var(--font-space-grotesk), monospace;
+    @apply uppercase tracking-widest text-[10px] font-bold;
   }
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+  .metallic-gold {
+     background: linear-gradient(135deg, #884e00 0%, #a7651a 100%);
+  }
+
+  .hairline-border {
+    border: 0.5px solid rgba(133, 116, 102, 0.2);
   }
 }

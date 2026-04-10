@@ -16,6 +16,12 @@ from src.engine.llm_config import get_model_router
 from src.utils.db_utils import get_db_manager
 from src.engine.retriever import VectorEngine
 from src.engine.graph import RegulatoryGraph
+from src.agents.monitor import run_discovery
+from src.agents.parser import chunk_document, ParsedDocument
+from src.agents.diff import generate_regulatory_diff
+from src.agents.mapping import MappingAgent
+from src.agents.drafting import DraftingAgent
+from src.agents.reporting import ReportingAgent
 from contextlib import asynccontextmanager
 
 # Configure logging
@@ -53,6 +59,32 @@ class TaskResponse(BaseModel):
     task_id: str
     status: str
     message: str
+
+# --- Agent Request Models ---
+
+class ParserRequest(BaseModel):
+    text: str
+    circular_id: str = "TEST-001"
+    issuing_body: str = "MOCK"
+    date_issued: str = "2024-04-10"
+    title: Optional[str] = None
+
+class DiffRequest(BaseModel):
+    old_text: str
+    new_text: str
+
+class MappingRequest(BaseModel):
+    diff_results: Dict[str, Any]
+    taxonomy_filter: str = ""
+
+class DraftingRequest(BaseModel):
+    internal_clause: str
+    change_text: str
+    reg_context: str
+    confidence: float = 85.0
+
+class ReportingRequest(BaseModel):
+    data_package: Dict[str, Any]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -419,4 +451,87 @@ def get_early_warnings():
         
     except Exception as e:
         logger.error(f"Failed to get early warnings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- Dedicated Agent Testing routes ---
+
+@app.post("/api/agents/monitor")
+def agent_monitor_run():
+    """Manually trigger the Monitor Agent's discovery logic."""
+    try:
+        results = run_discovery()
+        return {"status": "success", "found_count": len(results), "documents": results[:10]}
+    except Exception as e:
+        logger.error(f"Monitor Agent failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/agents/parser")
+def agent_parser_run(request: ParserRequest):
+    """Trigger the Parser Agent to chunk a raw text block."""
+    try:
+        doc = ParsedDocument(
+            text=request.text,
+            circular_id=request.circular_id,
+            issuing_body=request.issuing_body,
+            date_issued=request.date_issued,
+            title=request.title
+        )
+        chunks = chunk_document(doc)
+        return {
+            "status": "success",
+            "chunk_count": len(chunks),
+            "chunks": [c.page_content for c in chunks[:5]],
+            "metadata": chunks[0].metadata if chunks else {}
+        }
+    except Exception as e:
+        logger.error(f"Parser Agent failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/agents/diff")
+def agent_diff_run(request: DiffRequest):
+    """Trigger the Diff Agent to extract semantic changes between two snippets."""
+    try:
+        result = generate_regulatory_diff(request.old_text, request.new_text)
+        return {"status": "success", "diff": result}
+    except Exception as e:
+        logger.error(f"Diff Agent failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/agents/mapping")
+def agent_mapping_run(request: MappingRequest):
+    """Trigger the Mapping Agent to resolve impacts against the internal vector store."""
+    try:
+        engine = VectorEngine()
+        agent = MappingAgent(engine)
+        results = agent.map_impact_to_policies(request.diff_results, request.taxonomy_filter)
+        return {"status": "success", "impact_links": results}
+    except Exception as e:
+        logger.error(f"Mapping Agent failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/agents/drafting")
+def agent_drafting_run(request: DraftingRequest):
+    """Trigger the Drafting Agent to generate a policy amendment."""
+    try:
+        agent = DraftingAgent()
+        result = agent.draft_amendment(
+            request.internal_clause,
+            request.change_text,
+            request.reg_context,
+            upstream_confidence=request.confidence
+        )
+        return {"status": "success", "draft": result}
+    except Exception as e:
+        logger.error(f"Drafting Agent failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/agents/reporting")
+def agent_reporting_run(request: ReportingRequest):
+    """Trigger the Reporting Agent to generate a markdown impact report."""
+    try:
+        agent = ReportingAgent()
+        report_path = agent.generate_impact_report(request.data_package)
+        return {"status": "success", "report_path": report_path}
+    except Exception as e:
+        logger.error(f"Reporting Agent failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))

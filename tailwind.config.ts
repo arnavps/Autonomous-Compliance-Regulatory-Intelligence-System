@@ -55,6 +55,9 @@ const config: Config = {
         }
       },
       fontFamily: {
+        serif: ["var(--font-newsreader)", "serif"],
+        sans: ["var(--font-inter)", "sans-serif"],
+        mono: ["var(--font-space-grotesk)", "monospace"],
         aventa: ["var(--font-aventa)", "Inter", "sans-serif"],
         garamond: ["var(--font-garamond)", "Apple Garamond", "serif"],
         utility: ["var(--font-helvetica)", "Helvetica", "Arial", "sans-serif"],

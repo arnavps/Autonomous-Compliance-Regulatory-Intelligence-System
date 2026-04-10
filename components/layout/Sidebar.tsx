@@ -7,8 +7,7 @@ import {
   Map, 
   Radar, 
   FileSearch, 
-  ShieldCheck,
-  LayoutDashboard
+  ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,14 +22,18 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col bg-white border-r border-slate-200 shadow-sm">
-      <div className="flex h-16 items-center px-6 border-b border-slate-100">
-        <Link href="/" className="flex items-center gap-2">
-          <ShieldCheck className="h-8 w-8 text-indigo-600" />
-          <span className="text-xl font-bold font-aventa tracking-tight text-slate-900">ACRIS</span>
+    <div className="flex h-full w-64 flex-col bg-surface-container-low border-r-[0.5px] border-border/20 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
+      <div className="flex h-20 items-center px-8 border-b-[0.5px] border-border/10">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="h-8 w-8 bg-primary flex items-center justify-center">
+            <ShieldCheck className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-xl font-bold font-serif italic tracking-tight text-foreground">ACRIS</span>
         </Link>
       </div>
-      <nav className="flex-1 space-y-1 px-4 py-4">
+
+      <nav className="flex-1 px-4 py-8 space-y-2">
+        <div className="tech-label text-muted-foreground/40 px-4 mb-4">Intelligence Modules</div>
         {navigation.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -38,29 +41,33 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                "group flex items-center px-4 py-3 transition-all duration-300 relative",
                 isActive 
-                  ? "bg-indigo-50 text-indigo-700" 
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-white text-primary shadow-sm" 
+                  : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
               )}
             >
+              {isActive && (
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary" />
+              )}
               <item.icon 
                 className={cn(
-                  "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
-                  isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-500"
+                  "mr-4 h-5 w-5 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground/40 group-hover:text-muted-foreground"
                 )} 
               />
-              <span className="font-aventa">{item.name}</span>
+              <span className="text-xs font-bold uppercase tracking-widest font-mono">{item.name}</span>
             </Link>
           );
         })}
       </nav>
-      <div className="p-4 border-t border-slate-100">
-        <div className="rounded-lg bg-slate-50 p-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">System Status</p>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs font-medium text-slate-700">All Agents Online</span>
+
+      <div className="p-6 border-t-[0.5px] border-border/10">
+        <div className="bg-surface-container p-5 border-[0.5px] border-border/20">
+          <p className="tech-label text-muted-foreground mb-3 tracking-tighter">System Integrity</p>
+          <div className="flex items-center gap-3">
+            <div className="h-1.5 w-1.5 bg-tertiary animate-pulse" />
+            <span className="text-[10px] font-mono font-bold text-foreground">AGENTS OPERATIONAL</span>
           </div>
         </div>
       </div>
