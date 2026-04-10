@@ -2,14 +2,15 @@ import os
 import shutil
 import logging
 from typing import Dict, Any, List, Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from tenacity import retry, wait_exponential, stop_after_attempt
 
 from src.celery_app import celery_app
-from src.tasks import run_ingestion_pipeline, generate_impact_report, get_task_status
+from src.tasks import generate_impact_report, get_task_status
+from src.agents.monitor import run_ingestion_pipeline
 from src.engine.llm_config import get_model_router
 from src.utils.db_utils import get_db_manager
 
@@ -171,13 +172,15 @@ def query_acris(request: QueryRequest):
         )
 
 @app.post("/api/ingest", response_model=TaskResponse)
-def trigger_ingestion(request: IngestionRequest):
+def trigger_ingestion(request: IngestionRequest, background_tasks: BackgroundTasks):
     """Trigger async data ingestion pipeline."""
     try:
-        task = run_ingestion_pipeline.delay(request.data_sources)
+        import uuid
+        task_id = str(uuid.uuid4())
+        background_tasks.add_task(run_ingestion_pipeline, request.data_sources)
         
         return TaskResponse(
-            task_id=task.id,
+            task_id=task_id,
             status="queued",
             message="Ingestion pipeline started successfully"
         )

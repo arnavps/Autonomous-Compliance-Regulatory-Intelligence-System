@@ -64,8 +64,11 @@ class ConfidenceScorer:
         total_score = (s1_score * 0.40) + (s2_score * 0.35) + (s3_score * 0.25)
         total_percentage = total_score * 100
         
+        from src.utils.llm_config import config
+        threshold_percentage = config.LLM_ROUTING_THRESHOLD * 100
+        
         # Determine Status
-        status = "OK" if total_percentage >= 65 else "LOW_CONFIDENCE"
+        status = "OK" if total_percentage >= threshold_percentage else "LOW_CONFIDENCE"
         
         # Generate Note
         if total_percentage >= 85:
