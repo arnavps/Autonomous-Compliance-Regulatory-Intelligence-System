@@ -15,10 +15,11 @@ class ModelRouter:
     """
     Router for LLM models with primary Ollama and OpenAI fallback.
     Implements timeout and confidence-based fallback logic.
+    """
+    
     def __init__(self):
-        from src.utils.llm_config import config
         self.primary_timeout = 10  # seconds
-        self.confidence_threshold = config.LLM_ROUTING_THRESHOLD * 100
+        self.confidence_threshold = 70  # percentage
         self.primary_model = None
         self.fallback_model = None
         self._initialize_models()
@@ -38,12 +39,11 @@ class ModelRouter:
             self.primary_model = None
         
         try:
-            from src.utils.llm_config import config
             # Fallback: OpenAI (GPT-4o-mini)
-            openai_api_key = config.FALLBACK_LLM_API_KEY or config.OPENAI_API_KEY
+            openai_api_key = os.getenv("OPENAI_API_KEY")
             if openai_api_key and openai_api_key != "your_openai_api_key_here":
-                openai_base_url = config.OPENAI_BASE_URL
-                openai_model = config.OPENAI_MODEL or "gpt-4o-mini"
+                openai_base_url = os.getenv("OPENAI_BASE_URL")
+                openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
                 
                 client_kwargs = {}
                 if openai_base_url:
