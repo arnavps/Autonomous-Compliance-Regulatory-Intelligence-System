@@ -29,18 +29,23 @@ def get_llm_config():
 
 def get_llm():
     """
-    Initialize the LLM provider.
-    Defaults to Ollama for local execution, but can be switched to OpenAI.
+    Initialize the LLM provider using the ModelRouter.
+    Uses Ollama as primary with OpenAI fallback.
     """
     try:
-        from langchain_ollama import ChatOllama
-        config = get_llm_config()
-        return ChatOllama(
-            base_url=config["base_url"],
-            model=config["model"],
-            temperature=0
-        )
+        from src.engine.llm_config import get_model_router
+        return get_model_router()
     except ImportError:
-        # Fallback to a mock or alternative if ollama isn't installed
-        from langchain_core.language_models.fake import FakeListLLM
-        return FakeListLLM(responses=["[MOCK DRAFT] The policy has been updated to reflect the new regulatory requirements."])
+        # Fallback to legacy implementation if ModelRouter isn't available
+        try:
+            from langchain_ollama import ChatOllama
+            config = get_llm_config()
+            return ChatOllama(
+                base_url=config["base_url"],
+                model=config["model"],
+                temperature=0
+            )
+        except ImportError:
+            # Final fallback to mock
+            from langchain_core.language_models.fake import FakeListLLM
+            return FakeListLLM(responses=["[MOCK DRAFT] The policy has been updated to reflect the new regulatory requirements."])

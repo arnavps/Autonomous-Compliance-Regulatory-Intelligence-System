@@ -8,3 +8,10 @@ requests
 fastapi
 uvicorn
 python-dotenv
+tenacity
+celery
+redis
+sqlalchemy
+openai
+langchain-llama
+langchain-openai
