@@ -13,14 +13,38 @@ export default function LoginPage() {
   const { setRole } = useAuth();
   const router = useRouter();
 
+  const DEMO_ACCOUNTS = [
+    { email: "acris@officer.in", password: "test1234", role: "COMPLIANCE" as UserRole },
+    { email: "acris@lawyer.in", password: "test1234", role: "LAWYER" as UserRole },
+    { email: "acris@riskanalyst.in", password: "test1234", role: "RISK" as UserRole },
+  ];
+
+  const handleCredentialsCheck = () => {
+    const account = DEMO_ACCOUNTS.find(acc => acc.email === email && acc.password === password);
+    if (account) {
+      toast.success("Identity verified. Please select a role.");
+      if (account.role) setSelectedRole(account.role);
+      return true;
+    }
+    toast.error("Invalid institutional credentials");
+    return false;
+  };
+
   const handleEnterWorkspace = () => {
-    if (!email || !password) {
-      toast.error("Please enter your credentials first");
+    const account = DEMO_ACCOUNTS.find(acc => acc.email === email && acc.password === password);
+    
+    if (!account) {
+      toast.error("Please verify your credentials first");
       return;
     }
+
     if (!selectedRole) {
       toast.error("Please select your institutional role");
       return;
+    }
+
+    if (selectedRole !== account.role && account.role !== null) {
+      toast.warning(`Note: Logging in with ${selectedRole} permissions using ${account.email} credentials.`);
     }
 
     setRole(selectedRole);
@@ -104,10 +128,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 className="w-full bg-primary text-on-primary py-3 font-label uppercase tracking-widest text-xs hover:bg-primary/90 transition-all active:opacity-80"
-                onClick={() => {
-                  if (email && password) toast.success("Credentials verified. Select a role to proceed.");
-                  else toast.error("Please enter credentials");
-                }}
+                onClick={handleCredentialsCheck}
               >
                 Continue
               </button>
