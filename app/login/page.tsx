@@ -50,34 +50,34 @@ export default function LoginPage() {
   ];
 
   return (
-    <div className="bg-background text-on-surface font-body selection:bg-primary-fixed selection:text-primary min-h-screen flex overflow-hidden">
+    <div className="bg-background text-on-surface font-body selection:bg-primary-fixed selection:text-primary h-screen flex overflow-hidden">
       {/* Left Panel (55%): Login and Brand */}
-      <main className="w-full lg:w-[55%] bg-surface-container-low hex-grid relative flex flex-col p-8 md:p-12 overflow-y-auto border-r-[0.5px] border-outline-variant/20">
+      <main className="w-full lg:w-[55%] h-full bg-surface-container-low hex-grid relative flex flex-col p-6 md:p-8 border-r-[0.5px] border-outline-variant/20">
         {/* Brand Header */}
-        <header className="flex items-center gap-3 mb-16 md:mb-24">
-          <div className="bg-primary p-2">
-            <span className="material-symbols-outlined text-on-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+        <header className="flex items-center gap-3 mb-8">
+          <div className="bg-primary p-1.5">
+            <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               shield
             </span>
           </div>
-          <h1 className="font-headline italic text-2xl text-primary font-bold tracking-tight">ACRIS</h1>
+          <h1 className="font-headline italic text-xl text-primary font-bold tracking-tight">ACRIS</h1>
         </header>
 
-        <div className="max-w-md mx-auto w-full flex flex-col justify-center flex-grow">
-          <div className="mb-12">
-            <h2 className="font-headline text-4xl md:text-5xl text-on-surface mb-4 leading-tight">
+        <div className="max-w-md mx-auto w-full flex flex-col justify-center flex-grow overflow-hidden">
+          <div className="mb-6">
+            <h2 className="font-headline text-3xl md:text-4xl text-on-surface mb-2 leading-tight">
               Regulatory Intelligence, Built for India.
             </h2>
-            <p className="font-body text-on-surface-variant text-lg">Sign in to your compliance workspace.</p>
+            <p className="font-body text-on-surface-variant text-base">Sign in to your compliance workspace.</p>
           </div>
 
           {/* Login Form Card */}
-          <div className="glass-elevation p-6 md:p-10 border-[0.5px] border-outline-variant/30 bg-white/40">
-            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-              <div className="space-y-2">
-                <label className="font-label text-xs uppercase tracking-widest text-on-surface-variant">Institutional Email</label>
+          <div className="glass-elevation p-5 md:p-8 border-[0.5px] border-outline-variant/30 bg-white/40">
+            <form className="space-y-4 md:space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <div className="space-y-1">
+                <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Institutional Email</label>
                 <input
-                  className="w-full surgical-input py-3 font-body focus:ring-0 focus:outline-none"
+                  className="w-full surgical-input py-2 font-body focus:ring-0 focus:outline-none text-sm"
                   placeholder="officer@ledger.gov.in"
                   type="email"
                   value={email}
@@ -85,15 +85,15 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <div className="flex justify-between items-end">
-                  <label className="font-label text-xs uppercase tracking-widest text-on-surface-variant">Password</label>
-                  <button type="button" className="font-label text-[10px] uppercase text-primary hover:underline">
+                  <label className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Password</label>
+                  <button type="button" className="font-label text-[9px] uppercase text-primary hover:underline">
                     Forgot?
                   </button>
                 </div>
                 <input
-                  className="w-full surgical-input py-3 font-body focus:ring-0 focus:outline-none"
+                  className="w-full surgical-input py-2 font-body focus:ring-0 focus:outline-none text-sm"
                   placeholder="••••••••"
                   type="password"
                   value={password}
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
               <button
                 type="button"
-                className="w-full bg-primary text-on-primary py-4 font-label uppercase tracking-widest text-sm hover:bg-primary/90 transition-all active:opacity-80"
+                className="w-full bg-primary text-on-primary py-3 font-label uppercase tracking-widest text-xs hover:bg-primary/90 transition-all active:opacity-80"
                 onClick={() => {
                   if (email && password) toast.success("Credentials verified. Select a role to proceed.");
                   else toast.error("Please enter credentials");
@@ -112,17 +112,17 @@ export default function LoginPage() {
                 Continue
               </button>
 
-              <div className="relative flex py-2 items-center">
+              <div className="relative flex py-1 items-center">
                 <div className="flex-grow border-t border-outline-variant/20"></div>
-                <span className="flex-shrink mx-4 font-label text-[10px] uppercase text-on-surface-variant">Or Corporate SSO</span>
+                <span className="flex-shrink mx-4 font-label text-[9px] uppercase text-on-surface-variant">Or Corporate SSO</span>
                 <div className="flex-grow border-t border-outline-variant/20"></div>
               </div>
 
               <button
                 type="button"
-                className="w-full border-[0.5px] border-outline text-on-surface py-4 font-label uppercase tracking-widest text-sm hover:bg-surface-variant/30 transition-all flex items-center justify-center gap-3"
+                className="w-full border-[0.5px] border-outline text-on-surface py-3 font-label uppercase tracking-widest text-xs hover:bg-surface-variant/30 transition-all flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined text-lg">key</span>
+                <span className="material-symbols-outlined text-base">key</span>
                 Single Sign-On
               </button>
             </form>
@@ -130,17 +130,17 @@ export default function LoginPage() {
         </div>
 
         {/* Footer Metadata */}
-        <footer className="mt-12 flex justify-between items-center opacity-60">
-          <span className="font-label text-[10px] uppercase tracking-tighter">v4.0.2-STABLE // SECURED BY RSA-4096</span>
-          <div className="hidden sm:flex gap-4">
-            <span className="font-label text-[10px] uppercase tracking-tighter">SEBI COMPLIANT</span>
-            <span className="font-label text-[10px] uppercase tracking-tighter">RBI-GRID v2</span>
+        <footer className="mt-8 flex justify-between items-center opacity-60">
+          <span className="font-label text-[9px] uppercase tracking-tighter">v4.0.2-STABLE // SECURED BY RSA-4096</span>
+          <div className="hidden sm:flex gap-3">
+            <span className="font-label text-[9px] uppercase tracking-tighter">SEBI COMPLIANT</span>
+            <span className="font-label text-[9px] uppercase tracking-tighter">RBI-GRID v2</span>
           </div>
         </footer>
       </main>
 
       {/* Right Panel (45%): Role Selection */}
-      <aside className="hidden lg:flex w-[45%] bg-[#1A1714] relative flex-col p-12 overflow-y-auto">
+      <aside className="hidden lg:flex w-[45%] h-full bg-[#1A1714] relative flex-col p-8 md:p-10 overflow-hidden">
         {/* Abstract Tech Background Overlay */}
         <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
           <img
@@ -150,37 +150,37 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="mb-16">
-            <h3 className="font-headline text-3xl text-[#FBF9F4] mb-4">Select your role to customize your workspace.</h3>
-            <p className="font-body text-[#FBF9F4]/60">Your analytical tools and data feeds will be optimized for your specific regulatory function.</p>
+        <div className="relative z-10 flex flex-col h-full overflow-hidden">
+          <div className="mb-8">
+            <h3 className="font-headline text-2xl text-[#FBF9F4] mb-2 leading-tight">Select your role to customize your workspace.</h3>
+            <p className="font-body text-sm text-[#FBF9F4]/60">Your analytical tools and data feeds will be optimized for your function.</p>
           </div>
 
           {/* Role Cards Grid */}
-          <div className="space-y-4 flex-grow">
+          <div className="space-y-3 flex-grow overflow-y-auto pr-2 custom-scrollbar">
             {roles.map((role) => (
               <div
                 key={role.id}
                 onClick={() => setSelectedRole(role.id)}
                 className={cn(
-                  "p-6 flex items-start gap-5 cursor-pointer transition-all group border-[0.5px]",
+                  "p-4 flex items-start gap-4 cursor-pointer transition-all group border-[0.5px]",
                   selectedRole === role.id
                     ? "amber-glow bg-[#FBF9F4]/10 border-[#884E00]/40"
                     : "bg-[#FBF9F4]/5 border-white/10 hover:bg-[#FBF9F4]/10"
                 )}
               >
-                <div className={cn("p-3 transition-colors", selectedRole === role.id ? "bg-primary/20 text-primary" : "bg-white/10 text-[#FBF9F4]/80")}>
-                  <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: selectedRole === role.id ? "'FILL' 1" : "" }}>
+                <div className={cn("p-2 transition-colors", selectedRole === role.id ? "bg-primary/20 text-primary" : "bg-white/10 text-[#FBF9F4]/80")}>
+                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: selectedRole === role.id ? "'FILL' 1" : "" }}>
                     {role.icon}
                   </span>
                 </div>
                 <div className="flex-grow">
-                  <h4 className={cn("font-headline text-xl mb-1", selectedRole === role.id ? "text-primary" : "text-[#FBF9F4]")}>{role.title}</h4>
-                  <p className="font-body text-sm text-[#FBF9F4]/50 leading-relaxed">{role.desc}</p>
+                  <h4 className={cn("font-headline text-lg mb-0.5", selectedRole === role.id ? "text-primary" : "text-[#FBF9F4]")}>{role.title}</h4>
+                  <p className="font-body text-xs text-[#FBF9F4]/50 leading-relaxed">{role.desc}</p>
                 </div>
                 {selectedRole === role.id && (
                   <div className="self-center">
-                    <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
                       check_circle
                     </span>
                   </div>
@@ -190,31 +190,31 @@ export default function LoginPage() {
           </div>
 
           {/* Stepper and Actions */}
-          <div className="mt-12 space-y-8">
+          <div className="mt-8 space-y-4 md:space-y-6">
             {/* Linear Stepper */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className={cn("w-2 h-2", email && password ? "bg-tertiary" : "bg-white/20")}></div>
-                <span className={cn("font-label text-[10px] uppercase tracking-widest", email && password ? "text-tertiary" : "text-white/20")}>Credentials</span>
+                <span className={cn("font-label text-[9px] uppercase tracking-widest", email && password ? "text-tertiary" : "text-white/20")}>Credentials</span>
               </div>
-              <div className="h-[1px] w-8 bg-white/20"></div>
+              <div className="h-[1px] w-6 bg-white/20"></div>
               <div className="flex items-center gap-2">
                 <div className={cn("w-2 h-2", selectedRole ? "bg-primary" : "bg-white/20")}></div>
-                <span className={cn("font-label text-[10px] uppercase tracking-widest", selectedRole ? "text-primary" : "text-white/20")}>Role</span>
+                <span className={cn("font-label text-[9px] uppercase tracking-widest", selectedRole ? "text-primary" : "text-white/20")}>Role</span>
               </div>
-              <div className="h-[1px] w-8 bg-white/10"></div>
+              <div className="h-[1px] w-6 bg-white/10"></div>
               <div className="flex items-center gap-2 opacity-30">
                 <div className="w-2 h-2 bg-white"></div>
-                <span className="font-label text-[10px] uppercase tracking-widest text-white">Workspace</span>
+                <span className="font-label text-[9px] uppercase tracking-widest text-white">Workspace</span>
               </div>
             </div>
             
             <button
               onClick={handleEnterWorkspace}
-              className="w-full bg-primary text-on-primary py-5 font-label uppercase tracking-[0.2em] text-sm hover:bg-primary/90 transition-all flex items-center justify-center gap-4 shadow-[0_0_40px_rgba(136,78,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-on-primary py-4 font-label uppercase tracking-[0.2em] text-xs hover:bg-primary/90 transition-all flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(136,78,0,0.2)] disabled:opacity-50"
             >
               Enter Workspace
-              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
             </button>
           </div>
         </div>
