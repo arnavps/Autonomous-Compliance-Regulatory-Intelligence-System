@@ -17,31 +17,37 @@ CHROMA_PATH = os.path.join(os.getcwd(), 'data', 'chroma_db')
 BM25_PATH = os.path.join(os.getcwd(), 'data', 'bm25_index.pkl')
 
 class VectorEngine:
-    def __init__(self):
+    def __init__(self, collection_name: str = "regintel_semantic"):
         """Initialize the retrieval engine with semantic and keyword layers."""
         self.embeddings = get_embeddings()
+        self.collection_name = collection_name
+        self.chroma_path = os.path.join(os.getcwd(), 'data', f'chroma_{collection_name}')
+        self.bm25_path = os.path.join(os.getcwd(), 'data', f'bm25_{collection_name}.pkl')
+        
         self.vector_store = Chroma(
-            persist_directory=CHROMA_PATH,
+            persist_directory=self.chroma_path,
             embedding_function=self.embeddings,
-            collection_name="regintel_semantic"
+            collection_name=collection_name
         )
         self.bm25_retriever = self._load_bm25()
 
     def _load_bm25(self) -> Optional[BM25Retriever]:
         """Load the BM25 index from disk if it exists."""
-        if os.path.exists(BM25_PATH):
+        if os.path.exists(self.bm25_path):
             try:
-                with open(BM25_PATH, 'rb') as f:
+                with open(self.bm25_path, 'rb') as f:
                     return pickle.load(f)
             except Exception as e:
-                logger.error(f"Failed to load BM25 index: {e}")
+                logger.error(f"Failed to load BM25 index for {self.collection_name}: {e}")
         return None
+
 
     def _save_bm25(self, retriever: BM25Retriever):
         """Save the BM25 index to disk."""
-        os.makedirs(os.path.dirname(BM25_PATH), exist_ok=True)
-        with open(BM25_PATH, 'wb') as f:
+        os.makedirs(os.path.dirname(self.bm25_path), exist_ok=True)
+        with open(self.bm25_path, 'wb') as f:
             pickle.dump(retriever, f)
+
 
     def add_documents(self, documents: List[Document]):
         """Add documents to both semantic and keyword indices."""
