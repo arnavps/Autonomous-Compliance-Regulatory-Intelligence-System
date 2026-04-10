@@ -26,3 +26,21 @@ def get_llm_config():
         "base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         "model": os.getenv("OLLAMA_MODEL", "llama3.1:8b")
     }
+
+def get_llm():
+    """
+    Initialize the LLM provider.
+    Defaults to Ollama for local execution, but can be switched to OpenAI.
+    """
+    try:
+        from langchain_ollama import ChatOllama
+        config = get_llm_config()
+        return ChatOllama(
+            base_url=config["base_url"],
+            model=config["model"],
+            temperature=0
+        )
+    except ImportError:
+        # Fallback to a mock or alternative if ollama isn't installed
+        from langchain_core.language_models.fake import FakeListLLM
+        return FakeListLLM(responses=["[MOCK DRAFT] The policy has been updated to reflect the new regulatory requirements."])

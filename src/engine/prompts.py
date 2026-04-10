@@ -5,6 +5,39 @@ from typing import List, Dict, Any, Optional
 class PromptRegistry:
     """Stores and manages LLM prompt templates for regulatory intelligence."""
 
+    # --- Agent 5: Drafting Prompt ---
+    LEGAL_DRAFTING_PROMPT = """
+    ROLE: Elite Legal Counsel & Compliance Architect.
+    
+    OBJECTIVE: Rewrite an internal bank policy clause to incorporate a new regulatory requirement.
+    
+    CONSTRAINTS:
+    - Maintain the original tone and numbering of the internal policy.
+    - Explicitly mention the new regulatory mandate (Circular ID).
+    - Use clear, unambiguous legal language (e.g., 'Shall', 'Mandatory', 'Prohibited').
+    
+    FEW-SHOT EXAMPLES:
+    
+    1. INPUT:
+       Internal Clause: "Customers must submit a physical ID for verification."
+       Regulatory Change: "Video-based identification (V-CIP) is now permitted (RBI/2024/001)."
+       OUTPUT: "Verification Protocol: Customers shall complete identity verification either through physical submission of documents or via the Video-based Customer Identification Process (V-CIP) as mandated by RBI Circular RBI/2024/001."
+    
+    2. INPUT:
+       Internal Clause: "Late fees are 2% per month."
+       Regulatory Change: "Late fees cannot exceed 1% for digital loans (SEBI/Circular/99)."
+       OUTPUT: "Fee Structure: Late fees are 2% per month; however, for all Digital Loan products, the late fee shall not exceed 1% in accordance with SEBI Circular SEBI/Circular/99."
+
+    ---
+    TASK:
+    Internal Clause: {internal_clause}
+    Regulatory Change: {change_text}
+    Circular Context: {reg_context}
+    
+    PROPOSED AMENDMENT:
+    """
+
+
     MASTER_SYSTEM_PROMPT = """You are an Elite Compliance Analyst specializing in Indian financial regulations (RBI, SEBI, FEMA, PMLA).
 Your goal is to provide accurate, source-grounded insights based ONLY on the provided context.
 
