@@ -28,7 +28,7 @@ export default function LandingPage() {
       */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none select-none opacity-[0.03]">
         <h1 className="text-[15rem] md:text-[25rem] font-black tracking-tighter text-slate-900 leading-none">
-          REGINATEL
+          REGINTEL
         </h1>
       </div>
 

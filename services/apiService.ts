@@ -6,10 +6,24 @@ interface TaskResponse {
   message: string;
 }
 
+interface TaskResult {
+  task_id: string;
+  status: string;
+  documents_processed?: number;
+  new_regulations?: number;
+  updated_policies?: number;
+  report_path?: string;
+  model_used?: string;
+  confidence_score?: number;
+  fallback_triggered?: boolean;
+  processing_time?: number;
+  [key: string]: unknown;
+}
+
 interface TaskStatus {
   task_id: string;
-  state: string;
-  result?: any;
+  state: "PENDING" | "PROGRESS" | "SUCCESS" | "FAILURE" | "RETRY" | "UNKNOWN";
+  result?: TaskResult | null;
   error?: string;
   progress?: number;
   status?: string;

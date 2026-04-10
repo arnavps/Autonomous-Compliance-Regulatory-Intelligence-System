@@ -1,11 +1,12 @@
 import os
 import shutil
 import logging
+import re
 from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 from tenacity import retry, wait_exponential, stop_after_attempt
 
 from src.celery_app import celery_app
@@ -34,7 +35,13 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class QueryRequest(BaseModel):
-    query: str
+    query: str = Field(..., min_length=3, max_length=1000, description="Query string must be between 3 and 1000 characters")
+
+    @validator('query')
+    def validate_query_not_empty(cls, v):
+        if not v or not v.strip():
+            raise ValueError('Query cannot be empty or whitespace only')
+        return v.strip()
 
 class IngestionRequest(BaseModel):
     data_sources: Optional[List[str]] = []
@@ -65,7 +72,7 @@ app = FastAPI(title="ACRIS API", version="1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins for development
-    allow_credentials=True,
+    allow_credentials=False,  # Must be False when origins is ["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -89,22 +96,88 @@ def get_system_stats():
         logger.error(f"Failed to fetch stats: {e}")
         return {"total_circulars": 0, "total_conflicts": 0}
 
+@app.get("/api/conflict-map")
+def get_conflict_map():
+    """Get all regulatory conflicts for visualization."""
+    try:
+        rg = RegulatoryGraph()
+        conflicts = []
+
+        for node_id in rg.graph.nodes():
+            node_conflicts = rg.find_conflicts(node_id)
+            if node_conflicts:
+                node_data = rg.graph.nodes[node_id]
+                for conflict_id in node_conflicts:
+                    conflict_data = rg.graph.nodes.get(conflict_id, {})
+                    conflicts.append({
+                        "id": f"{node_id}-{conflict_id}",
+                        "source": {
+                            "id": node_id,
+                            "title": node_data.get("title", "Unknown"),
+                            "issuing_body": node_data.get("issuing_body", "Unknown"),
+                            "date": node_data.get("date", "Unknown")
+                        },
+                        "target": {
+                            "id": conflict_id,
+                            "title": conflict_data.get("title", "Unknown"),
+                            "issuing_body": conflict_data.get("issuing_body", "Unknown"),
+                            "date": conflict_data.get("date", "Unknown")
+                        },
+                        "type": "CONTRADICTS",
+                        "severity": "high"
+                    })
+
+        return {"conflicts": conflicts, "total": len(conflicts)}
+
+    except Exception as e:
+        logger.error(f"Failed to fetch conflict map: {e}")
+        return {"conflicts": [], "total": 0}
+
+def secure_filename(filename: str) -> str:
+    """Sanitize filename to prevent path traversal attacks."""
+    if not filename:
+        return "unnamed_file"
+    # Remove path separators and null bytes
+    filename = filename.replace("/", "_").replace("\\", "_").replace("\x00", "")
+    # Remove leading dots (hidden files)
+    filename = filename.lstrip(".")
+    # Limit length
+    if len(filename) > 255:
+        name, ext = os.path.splitext(filename)
+        filename = name[:255 - len(ext)] + ext
+    return filename or "unnamed_file"
+
 @app.post("/api/upload")
 async def upload_document(file: UploadFile = File(...)):
     # Define save directory
     save_dir = os.path.join("data", "policies")
     os.makedirs(save_dir, exist_ok=True)
-    
-    file_path = os.path.join(save_dir, file.filename)
-    
-    # Save the file safely
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
+
+    # Sanitize filename to prevent path traversal
+    safe_filename = secure_filename(file.filename)
+    file_path = os.path.join(save_dir, safe_filename)
+
+    # Ensure the resolved path is within save_dir (additional safety check)
+    real_save_dir = os.path.realpath(save_dir)
+    real_file_path = os.path.realpath(file_path)
+    if not real_file_path.startswith(real_save_dir):
+        raise HTTPException(status_code=400, detail="Invalid filename")
+
+    try:
+        # Save the file safely with explicit file handle management
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        logger.error(f"File upload failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save file")
+    finally:
+        # Ensure file handle is closed
+        await file.close()
+
     return {
         "status": "success",
         "message": "File uploaded successfully",
-        "filename": file.filename,
+        "filename": safe_filename,
         "path": file_path
     }
 
