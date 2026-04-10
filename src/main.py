@@ -244,3 +244,55 @@ def get_decision_stats(agent_name: Optional[str] = None):
     except Exception as e:
         logger.error(f"Failed to get decision stats: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/early-warnings")
+def get_early_warnings():
+    """Get early warning drafts sorted by urgency."""
+    try:
+        import sqlite3
+        import os
+        db_path = os.path.join(os.getcwd(), 'data', 'seen_urls.db')
+        
+        if not os.path.exists(db_path):
+            return {"warnings": []}
+            
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Check if table and columns exist before querying
+        try:
+            cursor.execute('''
+                SELECT * FROM seen 
+                WHERE status='draft' AND early_warning_flag=1
+            ''')
+            rows = cursor.fetchall()
+        except sqlite3.OperationalError:
+            # Columns might not exist yet if task hasn't run
+            rows = []
+            
+        conn.close()
+        
+        warnings = []
+        for row in rows:
+            warnings.append({
+                "id": row["url_hash"],
+                "url": row["url"],
+                "title": row["title"],
+                "issuing_body": row["issuing_body"],
+                "proposed_change": row["proposed_change"],
+                "affected_entities": row["affected_entities"],
+                "urgency": row["urgency"],
+                "probability": row["probability"],
+                "scraped_at": row["scraped_at"]
+            })
+            
+        # Sort by urgency (High -> Medium -> Low)
+        urgency_order = {"High": 0, "Medium": 1, "Low": 2}
+        warnings.sort(key=lambda x: urgency_order.get(x["urgency"] if x["urgency"] else "Medium", 3))
+        
+        return {"warnings": warnings}
+        
+    except Exception as e:
+        logger.error(f"Failed to get early warnings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     
     RBI_BASE_URL: str
     SEBI_CIRCULARS_URL: str
+    RBI_DRAFT_URL: str
+    SEBI_DRAFT_URL: str
     API_BASE_URL: str
     NEXT_PUBLIC_API_BASE_URL: str | None = None
     FALLBACK_LLM_API_KEY: str

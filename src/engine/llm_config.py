@@ -203,3 +203,51 @@ model_router = ModelRouter()
 def get_model_router() -> ModelRouter:
     """Get the singleton ModelRouter instance."""
     return model_router
+
+EARLY_WARNING_PROMPT = """
+You are an expert regulatory analyst for financial intelligence (RegIntel).
+Analyze the following draft paper or consultation paper snippet:
+{text}
+
+Extract the following information about this early warning draft and output it as a valid JSON object strictly matching this structure:
+{{
+    "proposed_change": "Brief description of proposed regulatory changes",
+    "affected_entities": "List of affected financial entities (e.g., NBFCs, Banks, Fintechs)",
+    "urgency": "High, Medium, or Low",
+    "probability": "Estimated probability of this change taking effect (e.g. 75%)"
+}}
+Return ONLY valid JSON.
+"""
+
+def extract_early_warning_metadata(text: str) -> dict:
+    """Extract metadata for an early warning draft using the LLM."""
+    import json
+    router = get_model_router()
+    prompt = EARLY_WARNING_PROMPT.format(text=text)
+    result = router.invoke(prompt)
+    if result.get("response"):
+        try:
+            response_text = result["response"]
+            # Clean possible markdown formatting
+            if "```json" in response_text:
+                response_text = response_text.split("```json")[1].split("```")[0]
+            elif "```" in response_text:
+                response_text = response_text.split("```")[1].split("```")[0]
+            
+            data = json.loads(response_text.strip())
+            return {
+                "proposed_change": data.get("proposed_change", "Unknown change"),
+                "affected_entities": data.get("affected_entities", "Unknown entities"),
+                "urgency": data.get("urgency", "Medium"),
+                "probability": data.get("probability", "50%")
+            }
+        except Exception as e:
+            logger.error(f"Error parsing early warning metadata JSON: {e}")
+            pass
+            
+    return {
+        "proposed_change": "Failed to parse metadata",
+        "affected_entities": "Unknown",
+        "urgency": "Medium",
+        "probability": "50%"
+    }
