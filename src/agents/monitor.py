@@ -275,10 +275,11 @@ def check_for_drafts() -> List[Dict]:
     return new_drafts
 
 
-def main():
-    """Entry point for the Monitor Agent."""
+def run_discovery() -> List[Dict[str, Any]]:
+    """
+    Primary interface for the Orchestrator to discover new regulatory documents.
+    """
     init_db()
-    
     all_new = []
     try:
         all_new.extend(scrape_rbi())
@@ -287,61 +288,9 @@ def main():
     except Exception as e:
         logger.error(f"Unexpected error during scraping: {e}")
     
-    if all_new:
-        logger.info(f"Monitor Agent completed. Found {len(all_new)} new documents.")
-    else:
-        logger.info("Monitor Agent completed. No new items found.")
-    
     return all_new
 
-async def run_ingestion_pipeline(data_sources: list = None) -> Dict[str, Any]:
-    """
-    Async task to run the data ingestion pipeline.
-    """
-    import uuid
-    task_id = str(uuid.uuid4())
-    
-    try:
-        logger.info(f"Starting ingestion pipeline for background task {task_id}")
-        
-        steps = [
-            "Fetching regulatory documents",
-            "Parsing document content", 
-            "Extracting metadata",
-            "Updating vector database",
-            "Indexing completed"
-        ]
-        
-        # Scrape to get new documents
-        new_docs = main()
-        
-        for i, step in enumerate(steps):
-            logger.info(f"Pipeline progress: {step}")
-            await asyncio.sleep(1)
-        
-        result = {
-            "task_id": task_id,
-            "status": "completed",
-            "documents_processed": len(new_docs),
-            "new_regulations": len(new_docs),
-            "updated_policies": 0,
-            "processing_time": 5.0
-        }
-        
-        log_decision(
-            agent_name="ingestion_pipeline",
-            input_data=json.dumps(data_sources or []),
-            agent_output=json.dumps(result),
-            confidence_score=95.0,
-            processing_time=result["processing_time"]
-        )
-        
-        logger.info(f"Ingestion pipeline completed for task {task_id}")
-        return result
-        
-    except Exception as e:
-        logger.error(f"Ingestion pipeline failed for task {task_id}: {str(e)}")
-        raise
-
 if __name__ == "__main__":
-    main()
+    init_db()
+    docs = run_discovery()
+    print(f"Found {len(docs)} new documents.")
