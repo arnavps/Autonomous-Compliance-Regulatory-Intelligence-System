@@ -5,81 +5,90 @@
 @config "../tailwind.config.ts";
 
 :root {
-  /* Sovereign Ledger Palette - Numerical precision & Warm Paper */
-  --background: #fbf9f4;
-  --foreground: #1b1c19;
+  --background: #F7F5F0;
+  --foreground: #1A1714;
   
-  --card: #ffffff;
-  --card-foreground: #1b1c19;
+  --card: rgba(255, 253, 248, 0.72);
+  --card-foreground: #1A1714;
  
-  --popover: #ffffff;
-  --popover-foreground: #1b1c19;
- 
-  --primary: #884e00; /* Amber Gold */
+  --primary: #C17B2F;
   --primary-foreground: #ffffff;
  
-  --secondary: #305f9b; /* RBI Blue */
-  --secondary-foreground: #ffffff;
-  
-  --tertiary: #18693a; /* SEBI Green */
-  --tertiary-foreground: #ffffff;
- 
-  --muted: #f0eee9;
+  --muted: rgba(247, 245, 240, 0.85);
   --muted-foreground: #524438;
  
-  --accent: #ffdcbf;
-  --accent-foreground: #2d1600;
+  --border: rgba(193, 123, 47, 0.12);
+  --input: rgba(193, 123, 47, 0.12);
+  --ring: #C17B2F;
  
-  --destructive: #ba1a1a;
-  --destructive-foreground: #ffffff;
-
-  --border: #d7c3b3;
-  --input: #d7c3b3;
-  --ring: #884e00;
- 
-  --radius: 0px; /* Mandatory 0px mandate */
-
-  /* Surface Hierarchy */
-  --surface-container-low: #f5f3ee;
-  --surface-container: #f0eee9;
-  --surface-container-high: #eae8e3;
-  --surface-container-highest: #e4e2dd;
+  --radius: 16px;
 }
 
 @layer base {
   * {
     @apply border-border;
-    border-radius: var(--radius) !important; /* Enforce 0px radius */
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-dm-sans), sans-serif;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    background-attachment: fixed;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-newsreader), serif;
-    font-style: italic;
+    @apply font-serif;
+    font-style: normal;
   }
 }
 
 @layer components {
-  .glass-intel {
+  .glass-standard {
     background: rgba(255, 253, 248, 0.72);
-    backdrop-filter: blur(12px);
-    border: 0.5px solid rgba(133, 116, 102, 0.2);
-    box-shadow: 0 4px 32px rgba(82, 68, 56, 0.08);
+    backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.60);
+    border-bottom: 1px solid rgba(193, 123, 47, 0.12);
+    box-shadow: 0 4px 24px rgba(26, 23, 20, 0.06), 
+                inset 0 1px 0 rgba(255,255,255,0.8);
+    border-radius: 16px;
+  }
+
+  .glass-elevated {
+    background: rgba(255, 253, 248, 0.90);
+    backdrop-filter: blur(20px) saturate(1.6);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 8px 40px rgba(26, 23, 20, 0.12);
+    border-radius: 20px;
+  }
+
+  .glass-sidebar {
+    background: rgba(247, 245, 240, 0.85);
+    backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(193, 123, 47, 0.12);
+  }
+
+  .glass-topbar {
+    background: rgba(247, 245, 240, 0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(193, 123, 47, 0.10);
+  }
+
+  .amber-glow-card {
+    background: linear-gradient(135deg, 
+      rgba(255, 253, 248, 0.85) 0%, 
+      rgba(232, 168, 76, 0.08) 100%);
+    border: 1px solid rgba(193, 123, 47, 0.25);
+    box-shadow: 0 4px 24px rgba(193, 123, 47, 0.12),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+
+  .conflict-card {
+    background: linear-gradient(135deg,
+      rgba(255, 253, 248, 0.85) 0%,
+      rgba(192, 57, 43, 0.05) 100%);
+    border: 1px solid rgba(192, 57, 43, 0.20);
+    border-left: 3px solid #C0392B;
   }
 
   .tech-label {
-    font-family: var(--font-space-grotesk), monospace;
-    @apply uppercase tracking-widest text-[10px] font-bold;
-  }
-
-  .metallic-gold {
-     background: linear-gradient(135deg, #884e00 0%, #a7651a 100%);
-  }
-
-  .hairline-border {
-    border: 0.5px solid rgba(133, 116, 102, 0.2);
+    @apply uppercase tracking-widest text-[10px] font-bold font-mono;
   }
 }

@@ -39,31 +39,34 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        navy: {
-          DEFAULT: "#001f3f",
-          dark: "#00152b",
+        amber: {
+          primary: "#C17B2F",
+          secondary: "#D4860A",
+          glow: "rgba(193, 123, 47, 0.12)",
         },
-        teal: {
-          DEFAULT: "#008080",
-          light: "#00a3a3",
+        conflict: {
+          red: "#C0392B",
+          glow: "rgba(192, 57, 43, 0.05)",
         },
-        brand: {
-          ivory: "#FAFAFA",
-          slate: "#0F172A",
-          indigo: "#4F46E5",
-          gold: "#854D0E",
+        sand: {
+          bg: "#F7F5F0",
+          topbar: "rgba(247, 245, 240, 0.92)",
+          sidebar: "rgba(247, 245, 240, 0.85)",
         }
       },
       fontFamily: {
-        serif: ["var(--font-newsreader)", "serif"],
-        sans: ["var(--font-inter)", "sans-serif"],
-        mono: ["var(--font-space-grotesk)", "monospace"],
-        aventa: ["var(--font-aventa)", "Inter", "sans-serif"],
-        garamond: ["var(--font-garamond)", "Apple Garamond", "serif"],
-        utility: ["var(--font-helvetica)", "Helvetica", "Arial", "sans-serif"],
+        serif: ["var(--font-fraunces)", "serif"],
+        sans: ["var(--font-dm-sans)", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
       },
       backdropBlur: {
         xs: "2px",
+        glass: "12px",
+        "glass-elevated": "20px",
+      },
+      boxShadow: {
+        "glass-sm": "0 4px 24px rgba(26, 23, 20, 0.06)",
+        "glass-md": "0 8px 40px rgba(26, 23, 20, 0.12)",
       }
     },
   },
