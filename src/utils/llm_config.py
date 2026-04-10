@@ -1,5 +1,4 @@
 import os
-from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import ValidationError
@@ -41,6 +40,7 @@ def get_embeddings():
     Initialize HuggingFace embeddings using all-MiniLM-L6-v2.
     Runs locally on CPU.
     """
+    from langchain_huggingface import HuggingFaceEmbeddings
     model_name = "all-MiniLM-L6-v2"
     model_kwargs = {'device': 'cpu'}
     encode_kwargs = {'normalize_embeddings': True}

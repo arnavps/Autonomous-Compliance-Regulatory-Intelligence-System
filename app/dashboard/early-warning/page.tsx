@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Radar, Zap, X, AlertTriangle } from "lucide-react";
 import apiClient from "@/lib/axios";
@@ -61,10 +63,10 @@ export default function EarlyWarningPage() {
               </div>
               <h4 className="font-bold mb-2 line-clamp-2" title={warning.title}>{warning.title}</h4>
               <p className="text-sm text-slate-500 mb-4 line-clamp-3" title={warning.proposed_change}>{warning.proposed_change}</p>
-              
+
               <div className="pt-4 mt-auto border-t border-slate-50 flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-400">{warning.probability} Probability</span>
-                <button 
+                <button
                   onClick={() => setActiveAnalysis(activeAnalysis === i ? null : i)}
                   className="text-xs font-bold text-indigo-600 hover:underline">
                   {activeAnalysis === i ? "Hide Analysis" : "View Analysis"}

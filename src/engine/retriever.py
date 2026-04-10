@@ -19,17 +19,28 @@ BM25_PATH = os.path.join(os.getcwd(), 'data', 'bm25_index.pkl')
 class VectorEngine:
     def __init__(self, collection_name: str = "regintel_semantic"):
         """Initialize the retrieval engine with semantic and keyword layers."""
-        self.embeddings = get_embeddings()
         self.collection_name = collection_name
         self.chroma_path = os.path.join(os.getcwd(), 'data', f'chroma_{collection_name}')
         self.bm25_path = os.path.join(os.getcwd(), 'data', f'bm25_{collection_name}.pkl')
-        
-        self.vector_store = Chroma(
-            persist_directory=self.chroma_path,
-            embedding_function=self.embeddings,
-            collection_name=collection_name
-        )
+        self._embeddings = None
+        self._vector_store = None
         self.bm25_retriever = self._load_bm25()
+
+    @property
+    def embeddings(self):
+        if self._embeddings is None:
+            self._embeddings = get_embeddings()
+        return self._embeddings
+
+    @property
+    def vector_store(self):
+        if self._vector_store is None:
+            self._vector_store = Chroma(
+                persist_directory=self.chroma_path,
+                embedding_function=self.embeddings,
+                collection_name=self.collection_name
+            )
+        return self._vector_store
 
     def _load_bm25(self) -> Optional[BM25Retriever]:
         """Load the BM25 index from disk if it exists."""

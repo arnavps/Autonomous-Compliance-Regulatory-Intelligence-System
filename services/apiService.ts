@@ -30,14 +30,13 @@ interface DecisionLog {
 export const apiService = {
   // Query regulations through the engine with model routing
   queryRegulation: async (params: { query: string }) => {
-    const response = await apiClient.post("/api/ask", params);
+    const response = await apiClient.post("/ask", params);
     return response.data;
   },
 
   // Upload an internal document to the parser
   uploadDocument: async (formData: FormData) => {
-    // When sending FormData, Axios will automatically set the correct Content-Type (multipart/form-data)
-    const response = await apiClient.post("/api/upload", formData, {
+    const response = await apiClient.post("/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -53,19 +52,19 @@ export const apiService = {
 
   // Trigger async data ingestion cycle
   triggerIngestion: async (dataSources?: string[]) => {
-    const response = await apiClient.post("/api/ingest", { data_sources: dataSources || [] });
+    const response = await apiClient.post("/ingest", { data_sources: dataSources || [] });
     return response.data as TaskResponse;
   },
 
   // Trigger async impact report generation
   triggerImpactReport: async (regulationData: any) => {
-    const response = await apiClient.post("/api/impact-report", { regulation_data: regulationData });
+    const response = await apiClient.post("/impact-report", { regulation_data: regulationData });
     return response.data as TaskResponse;
   },
 
   // Get task status by ID
   getTaskStatus: async (taskId: string) => {
-    const response = await apiClient.get(`/api/task/${taskId}`);
+    const response = await apiClient.get(`/task/${taskId}`);
     return response.data as TaskStatus;
   },
 
@@ -79,12 +78,12 @@ export const apiService = {
       const poll = async () => {
         try {
           const status = await apiService.getTaskStatus(taskId);
-          
+
           // Call progress callback if provided
           if (onProgress) {
             onProgress(status);
           }
-          
+
           // Check if task is complete
           if (status.state === "SUCCESS") {
             resolve(status);
@@ -98,7 +97,7 @@ export const apiService = {
           reject(error);
         }
       };
-      
+
       // Start polling
       poll();
     });
@@ -111,29 +110,29 @@ export const apiService = {
     if (agentName) {
       params.append("agent_name", agentName);
     }
-    
-    const response = await apiClient.get(`/api/decisions?${params.toString()}`);
+
+    const response = await apiClient.get(`/decisions?${params.toString()}`);
     return response.data as { decisions: DecisionLog[]; total: number };
   },
 
   // Get decision statistics
   getDecisionStats: async (agentName?: string) => {
     const params = agentName ? `?agent_name=${agentName}` : "";
-    const response = await apiClient.get(`/api/stats${params}`);
+    const response = await apiClient.get(`/stats${params}`);
     return response.data;
   },
 
   // Helper method to create a pollable task runner
   createTaskRunner: (taskId: string) => ({
     taskId,
-    
+
     // Get current status
     getStatus: () => apiService.getTaskStatus(taskId),
-    
+
     // Poll until complete with optional progress callback
-    wait: (onProgress?: (status: TaskStatus) => void) => 
+    wait: (onProgress?: (status: TaskStatus) => void) =>
       apiService.pollTaskStatus(taskId, onProgress),
-    
+
     // Check if task is complete
     isComplete: async () => {
       const status = await apiService.getTaskStatus(taskId);

@@ -87,9 +87,7 @@ def get_system_stats():
         return stats
     except Exception as e:
         logger.error(f"Failed to fetch stats: {e}")
-        return {"total_circulars": 0, "total_conflicts": 0}
-
-@app.post("/api/upload")
+        return {"total_circulars": 0, "total_conflicts": 0}@app.post("/api/upload")
 async def upload_document(file: UploadFile = File(...)):
     # Define save directory
     save_dir = os.path.join("data", "policies")
@@ -283,7 +281,7 @@ def get_recent_decisions(limit: int = 100, agent_name: Optional[str] = None):
         logger.error(f"Failed to retrieve decisions: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/stats")
+@app.get("/api/decision-stats")
 def get_decision_stats(agent_name: Optional[str] = None):
     """Get decision statistics."""
     try:

@@ -3,9 +3,6 @@ import time
 import logging
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
-from langchain_ollama import ChatOllama
-from langchain_openai import ChatOpenAI
-from langchain_core.language_models.base import BaseLanguageModel
 
 load_dotenv()
 
@@ -27,6 +24,7 @@ class ModelRouter:
     def _initialize_models(self):
         """Initialize primary (Ollama) and fallback (OpenAI) models."""
         try:
+            from langchain_ollama import ChatOllama
             # Primary: Ollama (Llama 3.1:8b)
             self.primary_model = ChatOllama(
                 base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
@@ -39,6 +37,7 @@ class ModelRouter:
             self.primary_model = None
         
         try:
+            from langchain_openai import ChatOpenAI
             # Fallback: OpenAI (GPT-4o-mini)
             openai_api_key = os.getenv("OPENAI_API_KEY")
             if openai_api_key and openai_api_key != "your_openai_api_key_here":
@@ -63,7 +62,7 @@ class ModelRouter:
             logger.error(f"Failed to initialize fallback model: {e}")
             self.fallback_model = None
     
-    def _run_with_timeout(self, model: BaseLanguageModel, prompt: str, timeout: int) -> Optional[str]:
+    def _run_with_timeout(self, model: Any, prompt: str, timeout: int) -> Optional[str]:
         """Run model inference with timeout."""
         start_time = time.time()
         try:
@@ -197,12 +196,15 @@ class ModelRouter:
         
         return result
 
-# Singleton instance
-model_router = ModelRouter()
+# Singleton instance (lazy-initialized)
+_model_router: Optional[ModelRouter] = None
 
 def get_model_router() -> ModelRouter:
-    """Get the singleton ModelRouter instance."""
-    return model_router
+    """Get the singleton ModelRouter instance (lazy init)."""
+    global _model_router
+    if _model_router is None:
+        _model_router = ModelRouter()
+    return _model_router
 
 EARLY_WARNING_PROMPT = """
 You are an expert regulatory analyst for financial intelligence (RegIntel).
