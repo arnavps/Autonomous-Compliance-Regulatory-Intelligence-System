@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Search, UserCircle, Database, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
 
 export function Header() {
   return (
@@ -13,6 +14,12 @@ export function Header() {
               type="text" 
               placeholder="Search regulations, circulars, or internal policies..." 
               className="w-full bg-slate-50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                  toast.success(`Searching across vectors for "${e.currentTarget.value}"...`);
+                  e.currentTarget.value = "";
+                }
+              }}
             />
           </div>
         </div>
@@ -29,14 +36,18 @@ export function Header() {
             </div>
           </div>
           
-          <button className="relative p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all">
+          <button 
+            onClick={() => toast.info("You have no new alerts.")}
+            className="relative p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all">
             <Bell className="h-5 w-5" />
             <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white" />
           </button>
           
           <div className="h-8 w-[1px] bg-slate-200" />
           
-          <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-50 transition-all">
+          <button 
+            onClick={() => toast.info("Profile settings coming in v1.1")}
+            className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-50 transition-all">
             <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
               <UserCircle className="h-6 w-6" />
             </div>

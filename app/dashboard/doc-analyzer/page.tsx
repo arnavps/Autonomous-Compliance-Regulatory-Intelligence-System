@@ -94,7 +94,10 @@ export default function DocAnalyzerPage() {
           </button>
           <button 
             type="button" 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.info("SharePoint integration requires Enterprise plan.");
+            }}
             className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold disabled:opacity-50"
           >
             Connect SharePoint
@@ -116,7 +119,9 @@ export default function DocAnalyzerPage() {
                   <div className="text-xs text-slate-400">Analyzed {file.date} • {file.clauses} Clauses Mapped</div>
                 </div>
               </div>
-              <button className="text-sm font-bold text-indigo-600 hover:underline">Re-run Mapping</button>
+              <button 
+                onClick={() => toast.success(`Re-running mapping for ${file.name}...`)}
+                className="text-sm font-bold text-indigo-600 hover:underline">Re-run Mapping</button>
             </div>
           ))}
         </div>

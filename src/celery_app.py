@@ -4,12 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Create Celery instance - using memory broker for development
-# For production, switch to Redis: redis://localhost:6379/0
+# Create Celery instance using Redis
 celery_app = Celery(
     "regintel_tasks",
-    broker="memory://",
-    backend="cache+memory://",
+    broker=os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0"),
+    backend=os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
     include=["src.tasks"]
 )
 

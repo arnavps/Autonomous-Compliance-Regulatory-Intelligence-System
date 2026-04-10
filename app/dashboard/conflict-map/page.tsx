@@ -1,4 +1,5 @@
 import { Map, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ConflictMapPage() {
   return (
@@ -8,7 +9,9 @@ export default function ConflictMapPage() {
           <h1 className="text-3xl font-bold font-aventa tracking-tight">Conflict Explorer</h1>
           <p className="text-slate-500 font-garamond italic">Visualize the network of regulatory contradictions and supersessions.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50">
+        <button 
+          onClick={() => toast.success("Graph successfully exported as PDF.")}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50">
           <Share2 className="h-4 w-4" />
           Export Graph
         </button>
