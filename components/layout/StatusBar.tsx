@@ -18,7 +18,7 @@ export function StatusBar() {
   useEffect(() => {
     const pollTasks = async () => {
       try {
-        const response = await apiClient.get("/tasks");
+        const response = await apiClient.get("/api/tasks");
         if (response.data && Array.isArray(response.data)) {
           setTasks(response.data);
         }

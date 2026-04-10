@@ -12,7 +12,7 @@ export default function EarlyWarningPage() {
   useEffect(() => {
     async function fetchWarnings() {
       try {
-        const response = await apiClient.get('/early-warnings');
+        const response = await apiClient.get('/api/early-warnings');
         setWarnings(response.data.warnings || []);
       } catch (error) {
         console.error("Failed to fetch early warnings", error);

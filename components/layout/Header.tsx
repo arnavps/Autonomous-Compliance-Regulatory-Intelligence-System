@@ -11,7 +11,7 @@ export function Header() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await apiClient.get("/stats");
+        const response = await apiClient.get("/api/stats");
         setStats(response.data);
       } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);

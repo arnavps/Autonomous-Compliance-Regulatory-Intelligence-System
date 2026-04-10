@@ -30,13 +30,13 @@ interface DecisionLog {
 export const apiService = {
   // Query regulations through the engine with model routing
   queryRegulation: async (params: { query: string }) => {
-    const response = await apiClient.post("/ask", params);
+    const response = await apiClient.post("/api/ask", params);
     return response.data;
   },
 
   // Upload an internal document to the parser
   uploadDocument: async (formData: FormData) => {
-    const response = await apiClient.post("/upload", formData, {
+    const response = await apiClient.post("/api/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -46,25 +46,25 @@ export const apiService = {
 
   // Get the conflict map showing policy discrepancies
   getConflictMap: async () => {
-    const response = await apiClient.get("/conflict-map");
+    const response = await apiClient.get("/api/conflict-map");
     return response.data;
   },
 
   // Trigger async data ingestion cycle
   triggerIngestion: async (dataSources?: string[]) => {
-    const response = await apiClient.post("/ingest", { data_sources: dataSources || [] });
+    const response = await apiClient.post("/api/ingest", { data_sources: dataSources || [] });
     return response.data as TaskResponse;
   },
 
   // Trigger async impact report generation
   triggerImpactReport: async (regulationData: any) => {
-    const response = await apiClient.post("/impact-report", { regulation_data: regulationData });
+    const response = await apiClient.post("/api/impact-report", { regulation_data: regulationData });
     return response.data as TaskResponse;
   },
 
   // Get task status by ID
   getTaskStatus: async (taskId: string) => {
-    const response = await apiClient.get(`/task/${taskId}`);
+    const response = await apiClient.get(`/api/task/${taskId}`);
     return response.data as TaskStatus;
   },
 
@@ -111,14 +111,14 @@ export const apiService = {
       params.append("agent_name", agentName);
     }
 
-    const response = await apiClient.get(`/decisions?${params.toString()}`);
+    const response = await apiClient.get(`/api/decisions?${params.toString()}`);
     return response.data as { decisions: DecisionLog[]; total: number };
   },
 
   // Get decision statistics
   getDecisionStats: async (agentName?: string) => {
     const params = agentName ? `?agent_name=${agentName}` : "";
-    const response = await apiClient.get(`/stats${params}`);
+    const response = await apiClient.get(`/api/stats${params}`);
     return response.data;
   },
 
