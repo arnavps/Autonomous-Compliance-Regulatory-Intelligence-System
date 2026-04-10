@@ -125,6 +125,15 @@ class RegulatoryGraph:
                 
         return conflicts
 
+    def get_stats(self) -> Dict[str, int]:
+        """Return summary statistics for the dashboard."""
+        circulars_count = len([n for n, d in self.graph.nodes(data=True) if d.get('type') == 'Circular'])
+        conflicts_count = len([ (u, v) for u, v, d in self.graph.edges(data=True) if d.get('type') == 'CONTRADICTS']) // 2
+        return {
+            "total_circulars": circulars_count,
+            "total_conflicts": conflicts_count
+        }
+
 if __name__ == "__main__":
     # Smoke test
     rg = RegulatoryGraph()

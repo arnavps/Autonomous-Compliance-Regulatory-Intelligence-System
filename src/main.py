@@ -14,6 +14,7 @@ from src.engine.orchestrator import orchestrate_regulatory_update, task_tracker
 from src.engine.llm_config import get_model_router
 from src.utils.db_utils import get_db_manager
 from src.engine.retriever import VectorEngine
+from src.engine.graph import RegulatoryGraph
 from contextlib import asynccontextmanager
 
 # Configure logging
@@ -76,6 +77,17 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+@app.get("/api/stats")
+def get_system_stats():
+    """Retrieve aggregate circular and conflict statistics."""
+    try:
+        rg = RegulatoryGraph()
+        stats = rg.get_stats()
+        return stats
+    except Exception as e:
+        logger.error(f"Failed to fetch stats: {e}")
+        return {"total_circulars": 0, "total_conflicts": 0}
 
 @app.post("/api/upload")
 async def upload_document(file: UploadFile = File(...)):

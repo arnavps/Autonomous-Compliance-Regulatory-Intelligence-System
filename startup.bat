@@ -1,0 +1,3 @@
+@echo off
+echo Starting ACRIS Frontend...
+npm run dev

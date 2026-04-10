@@ -1,9 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bell, Search, UserCircle, Database, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import apiClient from "@/lib/axios";
 
 export function Header() {
+  const [stats, setStats] = useState({ total_circulars: 0, total_conflicts: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiClient.get("/stats");
+        setStats(response.data);
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats:", error);
+      }
+    };
+    fetchStats();
+    // Poll stats every 10 seconds to reflect new indexing
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <header className="h-16 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-10">
       <div className="h-full px-6 flex items-center justify-between">
@@ -28,11 +47,11 @@ export function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 rounded-full border border-indigo-100">
               <Database className="h-4 w-4 text-indigo-600" />
-              <span className="text-xs font-semibold text-indigo-700">5 Circulars Indexed</span>
+              <span className="text-xs font-semibold text-indigo-700">{stats.total_circulars} Circulars Indexed</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 rounded-full border border-amber-100">
               <ShieldAlert className="h-4 w-4 text-amber-600" />
-              <span className="text-xs font-semibold text-amber-700">1 Conflict Detected</span>
+              <span className="text-xs font-semibold text-amber-700">{stats.total_conflicts} Conflict{stats.total_conflicts !== 1 ? 's' : ''} Detected</span>
             </div>
           </div>
           
