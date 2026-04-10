@@ -92,6 +92,29 @@
   .tech-label {
     @apply uppercase tracking-widest text-[10px] font-bold font-mono;
   }
+
+  .hex-grid {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.33v12.91l10.99 6.34 11-6.35V17.33L14 11l-11 6.33z' fill='%23884e00' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+
+  .glass-elevation {
+    background: rgba(255, 253, 248, 0.72);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 32px 32px rgba(82, 68, 56, 0.08);
+  }
+
+  .surgical-input {
+    border: none;
+    border-bottom: 0.5px solid #857466;
+    background: transparent;
+    @apply transition-all duration-200;
+  }
+
+  .surgical-input:focus {
+    outline: none;
+    border-bottom: 1px solid #884e00;
+    box-shadow: none;
+  }
 }
 
 @keyframes ticker {

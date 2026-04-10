@@ -81,10 +81,10 @@ const config: Config = {
         }
       },
       fontFamily: {
-        headline: ["var(--font-fraunces)", "serif"],
+        headline: ["var(--font-newsreader)", "serif"],
         body: ["var(--font-inter)", "sans-serif"],
         label: ["var(--font-space-grotesk)", "monospace"],
-        serif: ["var(--font-fraunces)", "serif"],
+        serif: ["var(--font-newsreader)", "serif"],
         sans: ["var(--font-inter)", "sans-serif"],
         mono: ["var(--font-space-grotesk)", "monospace"],
       },
