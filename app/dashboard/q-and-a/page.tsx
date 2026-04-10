@@ -1,7 +1,9 @@
 "use client";
 
 import { MessageSquareLock, ShieldEllipsis, User, Bot, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiService } from "../../../services/apiService";
 
 interface Message {
   role: "user" | "ai";
@@ -13,48 +15,45 @@ interface Message {
 export default function QnAPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [query, setQuery] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = async () => {
-    if (!query.trim()) return;
+  // Auto scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, query]);
+
+  const mutation = useMutation({
+    mutationFn: (userMessage: string) => apiService.queryRegulation({ query: userMessage }),
+    onSuccess: (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          content: data.answer || "No specific answer was returned for this query.",
+          confidence: data.confidence,
+          citations: data.citations,
+        },
+      ]);
+    },
+    onError: (error) => {
+      // The Axios interceptor fires a generic toast for 5xx/429 errors.
+      // We also update the chat UI gracefully.
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", content: "Error: Could not retrieve intelligence data. Please verify the backend connection." }
+      ]);
+    }
+  });
+
+  const handleSubmit = () => {
+    if (!query.trim() || mutation.isPending) return;
 
     const userMessage = query;
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setQuery("");
-    setIsTyping(true);
-
-    try {
-      const response = await fetch("http://localhost:8000/api/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: userMessage }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "ai",
-            content: data.answer,
-            confidence: data.confidence,
-            citations: data.citations,
-          },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { role: "ai", content: "Error: Could not reach the intelligence engine. Please check backend connection." }
-        ]);
-      }
-    } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "ai", content: "Network error: Connection to localhost:8000 failed." }
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
+    mutation.mutate(userMessage);
   };
 
   return (
@@ -73,7 +72,7 @@ export default function QnAPage() {
       <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
         
         {/* Chat Feed */}
-        <div className="flex-1 p-8 overflow-y-auto w-full">
+        <div ref={scrollRef} className="flex-1 p-8 overflow-y-auto w-full scroll-smooth">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center h-full">
               <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
@@ -93,7 +92,7 @@ export default function QnAPage() {
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                     
                     {/* Citations block for AI */}
-                    {msg.role === "ai" && msg.citations && (
+                    {msg.role === "ai" && msg.citations && msg.citations.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-slate-200/60">
                         <div className="flex items-center gap-4 mb-2">
                           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Citations</span>
@@ -114,14 +113,21 @@ export default function QnAPage() {
                 </div>
               ))}
               
-              {isTyping && (
+              {mutation.isPending && (
                 <div className="flex gap-4">
                   <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-slate-100 border border-slate-200">
                     <Bot className="h-5 w-5 text-slate-600" />
                   </div>
-                  <div className="max-w-[80%] rounded-2xl p-5 bg-slate-50 border border-slate-100 rounded-tl-sm text-slate-700 flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-                    <span className="text-sm text-slate-500 italic">ACRIS is consulting the regulatory database...</span>
+                  <div className="max-w-[80%] rounded-2xl p-5 bg-slate-50 border border-slate-100 rounded-tl-sm w-full shadow-inner animate-pulse">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                      <span className="text-sm font-medium text-slate-500 italic">ACRIS is cross-referencing regulatory framework...</span>
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                      <div className="h-2 bg-slate-200 rounded-full w-3/4"></div>
+                      <div className="h-2 bg-slate-200 rounded-full w-full"></div>
+                      <div className="h-2 bg-slate-200 rounded-full w-5/6"></div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -139,12 +145,13 @@ export default function QnAPage() {
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               placeholder="e.g., What are the latest KYC norms for Digital Lending as per RBI August 2024 circular?"
               className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-6 pr-32 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none shadow-sm"
+              disabled={mutation.isPending}
             />
             <button 
               onClick={handleSubmit}
-              disabled={isTyping || !query.trim()}
-              className="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">
-              Ask ACRIS
+              disabled={mutation.isPending || !query.trim()}
+              className="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+              {mutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Ask ACRIS"}
             </button>
           </div>
         </div>
@@ -153,3 +160,4 @@ export default function QnAPage() {
     </div>
   );
 }
+

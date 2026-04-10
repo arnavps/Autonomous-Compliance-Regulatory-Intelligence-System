@@ -2,52 +2,53 @@
 
 import { FileSearch, UploadCloud, CheckCircle2 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiService } from "../../../services/apiService";
+import { toast } from "sonner";
 
 export default function DocAnalyzerPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{name: string, date: string, clauses: number}[]>([
     { name: "Indian_Bank_KYC_Policy_v4.2.pdf", date: "Sep 28, 2024", clauses: 42 },
     { name: "Retail_Lending_Guidelines_Draft.docx", date: "Sep 15, 2024", clauses: 18 }
   ]);
 
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) => apiService.uploadDocument(formData),
+    onSuccess: (data) => {
+      // Create a pseudo-analysis representation for visual feedback
+      setUploadedFiles(prev => [
+        { 
+          name: data.filename || "Uploaded_Document", 
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), 
+          clauses: Math.floor(Math.random() * 50) + 10 
+        },
+        ...prev
+      ]);
+      toast.success(`Successfully uploaded and parsed: ${data.filename || 'Document'}`);
+    },
+    onError: (error) => {
+      // The Axios interceptor fires a generic toast for 5xx/429 errors.
+      // We can reset state or perform minor changes here if we want.
+      // E.g., we do not need browser alert().
+    },
+    onSettled: () => {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  });
+
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      // Post to FastAPI backend running on port 8000
-      const response = await fetch("http://localhost:8000/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Add pseudo-analysis result to top of list
-        setUploadedFiles(prev => [
-          { name: data.filename, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), clauses: Math.floor(Math.random() * 50) + 10 },
-          ...prev
-        ]);
-      } else {
-        alert("Upload failed. Make sure the backend is running on port 8000.");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("Upload failed. Cannot connect to backend API.");
-    } finally {
-      setIsUploading(false);
-      // Reset input
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+    mutation.mutate(formData);
   };
 
   return (
@@ -60,21 +61,21 @@ export default function DocAnalyzerPage() {
       <div 
         onClick={handleUploadClick}
         className={`bg-white p-12 rounded-[3rem] border-2 border-dashed transition-all group flex flex-col items-center justify-center text-center cursor-pointer
-          ${isUploading ? 'border-indigo-400 bg-indigo-50/30 opacity-70' : 'border-slate-200 hover:border-indigo-400 hover:bg-slate-50/50'}
+          ${mutation.isPending ? 'border-indigo-400 bg-indigo-50/30 opacity-70' : 'border-slate-200 hover:border-indigo-400 hover:bg-slate-50/50'}
         `}
       >
         <div className="h-20 w-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-          {isUploading ? (
+          {mutation.isPending ? (
             <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           ) : (
             <UploadCloud className="h-10 w-10 text-indigo-600" />
           )}
         </div>
         <h3 className="text-xl font-bold mb-2">
-          {isUploading ? "Uploading & Analyzing..." : "Upload Internal Documentation"}
+          {mutation.isPending ? "Uploading & Analyzing..." : "Upload Internal Documentation"}
         </h3>
         <p className="text-slate-400 max-w-sm mb-8">
-          {isUploading ? "Please wait while our parsing agents read the document." : "Drag and drop your policy files here, or browse your files. We support PDF, DOCX, and TXT."}
+          {mutation.isPending ? "Please wait while our parsing agents read the document." : "Drag and drop your policy files here, or browse your files. We support PDF, DOCX, and TXT."}
         </p>
         <div className="flex gap-4">
           <input 
@@ -86,7 +87,7 @@ export default function DocAnalyzerPage() {
           />
           <button 
             type="button"
-            disabled={isUploading}
+            disabled={mutation.isPending}
             className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 disabled:bg-slate-400"
           >
             Browse Files

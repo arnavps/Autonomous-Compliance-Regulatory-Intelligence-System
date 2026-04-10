@@ -7,7 +7,7 @@ import os
 class QueryRequest(BaseModel):
     query: str
 
-app = FastAPI(title="RegIntel API", version="1.0")
+app = FastAPI(title="ACRIS API", version="1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,7 +19,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"status": "ok", "message": "RegIntel FastAPI Server is running."}
+    return {"status": "ok", "message": "ACRIS FastAPI Server is running."}
 
 @app.get("/health")
 def health_check():
