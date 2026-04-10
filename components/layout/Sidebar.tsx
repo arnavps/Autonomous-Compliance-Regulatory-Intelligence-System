@@ -27,7 +27,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center px-6 border-b border-slate-100">
         <Link href="/" className="flex items-center gap-2">
           <ShieldCheck className="h-8 w-8 text-indigo-600" />
-          <span className="text-xl font-bold font-aventa tracking-tight text-slate-900">RegIntel AI</span>
+          <span className="text-xl font-bold font-aventa tracking-tight text-slate-900">ACRIS</span>
         </Link>
       </div>
       <nav className="flex-1 space-y-1 px-4 py-4">

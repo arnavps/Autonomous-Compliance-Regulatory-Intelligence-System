@@ -38,7 +38,7 @@ export default function LandingPage() {
         <nav className="max-w-6xl mx-auto h-16 rounded-full bg-white/70 backdrop-blur-xl border border-slate-200/50 flex items-center justify-between px-6 shadow-sm">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-indigo-600" />
-            <span className="text-xl font-bold tracking-tight">RegIntel AI</span>
+            <span className="text-xl font-bold tracking-tight">ACRIS</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Platform</Link>

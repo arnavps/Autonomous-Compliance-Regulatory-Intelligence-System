@@ -31,7 +31,7 @@ export default function QnAPage() {
               className="w-full bg-white border border-slate-200 rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none shadow-sm"
             />
             <button className="absolute right-3 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
-              Ask RegIntel
+              Ask ACRIS
             </button>
           </div>
         </div>
