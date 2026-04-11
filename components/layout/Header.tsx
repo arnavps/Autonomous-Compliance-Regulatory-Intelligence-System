@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Database, ShieldAlert, Shield, Search as SearchIcon } from "lucide-react";
+import { Bell, Database, ShieldAlert, Search as SearchIcon, Activity } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/lib/axios";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { useWorkflowStore } from "@/lib/store/workflowStore";
+import { usePipelineStore } from "@/lib/store/pipelineStore";
 
 export function Header() {
   const { role } = useAuth();
   const { amendments } = useWorkflowStore();
+  const { status: pipelineStatus, isActive: isPipelineActive } = usePipelineStore();
   const [mounted, setMounted] = useState(false);
   const pendingCount = amendments.filter(a => a.status === 'Proposed').length;
   const [stats, setStats] = useState({ total_circulars: 127, total_conflicts: 3 });
@@ -75,11 +77,30 @@ export function Header() {
 
       {/* Right Cluster */}
       <div className="flex items-center gap-4 min-w-[240px] justify-end">
-        {/* Live Indicator */}
-        <div className="flex items-center gap-2 px-2 py-1">
-          <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] font-mono font-bold text-slate-400">LIVE</span>
+        {/* Global Pipeline Status Indicator */}
+        <div className={cn(
+          "flex items-center gap-2 px-3 py-1 border-[0.5px] rounded-md transition-all cursor-pointer group",
+          isPipelineActive 
+            ? "bg-amber-primary/5 border-amber-primary/20" 
+            : "bg-slate-50/50 border-slate-200 grayscale opacity-40 hover:grayscale-0 hover:opacity-100"
+        )} onClick={() => {
+          if (isPipelineActive) {
+            toast.info("Active Orchestration: Ingress pipeline currently engaged.");
+          } else {
+            toast("Orchestration Idle", { description: "No active agents in standard loop." });
+          }
+        }}>
+          <div className={cn(
+            "h-1.5 w-1.5 rounded-full bg-amber-primary",
+            isPipelineActive && "animate-pulse"
+          )} />
+          <span className="text-[9px] font-mono font-bold tracking-widest text-slate-500 group-hover:text-amber-primary transition-colors uppercase">
+            {isPipelineActive ? "Agent Pipeline — Active" : "Orchestration Idle"}
+          </span>
+          {isPipelineActive && <Activity className="h-3 w-3 text-amber-primary/40 group-hover:text-amber-primary" />}
         </div>
+
+        <div className="h-4 w-[1px] bg-slate-200 mx-1" />
 
         {/* Stats Pills */}
         <div className="flex items-center gap-2">

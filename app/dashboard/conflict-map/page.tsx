@@ -116,14 +116,14 @@ export default function ConflictMapPage() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0">
         
         {/* Left Sidebar: Findings List */}
-        <div className="lg:col-span-4 flex flex-col space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="lg:col-span-4 flex flex-col space-y-6 overflow-y-auto pr-2 custom-scrollbar no-scrollbar">
           <div className="flex items-center justify-between px-1">
              <h3 className="tech-label text-muted-foreground">Detected Contradictions</h3>
              <span className="font-mono text-[10px] text-primary bg-primary/5 px-2 py-0.5">{activeConflicts.length} Active</span>
           </div>
 
           <div className="space-y-3">
-            {activeConflicts.map((conflict) => (
+            {activeConflicts.map((conflict: any) => (
               <motion.div
                 key={conflict.id}
                 onClick={() => setSelectedId(conflict.id)}
@@ -185,7 +185,7 @@ export default function ConflictMapPage() {
         </div>
 
         {/* Main Area: Relational Graph Engine */}
-        <div className="lg:col-span-8 bg-surface-container-low border-[0.5px] border-border/20 relative overflow-hidden flex flex-col p-10">
+        <div className="lg:col-span-8 bg-surface-container-low border-[0.5px] border-border/20 relative overflow-hidden flex flex-col p-10 min-h-[600px]">
            {/* Technical Blueprint Grid */}
            <div className="absolute inset-0 bg-[linear-gradient(to_right,#85746612_1px,transparent_1px),linear-gradient(to_bottom,#85746612_1px,transparent_1px)] [background-size:40px_40px]" />
            
@@ -243,9 +243,9 @@ export default function ConflictMapPage() {
                             {nextNode && (
                               <motion.line 
                                 x1={node.x + 400} // Centering adjustment
-                                y1={node.y + 100} 
+                                y1={node.y + 10} 
                                 x2={nextNode.x + 400} 
-                                y2={nextNode.y + 100} 
+                                y2={nextNode.y + 10} 
                                 stroke="url(#edgeGradient)"
                                 strokeWidth="2"
                                 strokeDasharray="10 5"
@@ -257,7 +257,7 @@ export default function ConflictMapPage() {
                             )}
                             <foreignObject 
                               x={node.x + 330} 
-                              y={node.y + 55} 
+                              y={node.y - 30} 
                               width="160" 
                               height="120"
                               className="pointer-events-auto"
@@ -289,25 +289,54 @@ export default function ConflictMapPage() {
                 
                 {/* Floating Detail Card - High Fidelity Intelligence */}
                 {selectedConflict && (
-                <div className="absolute bottom-6 left-6 right-6 glass-intel p-8 border-[0.5px] border-white/40 flex flex-col md:flex-row gap-10 items-center">
+                <div className="absolute bottom-6 left-6 right-6 glass-intel p-8 border-[0.5px] border-white/40 flex flex-col xl:flex-row gap-10 items-start">
                    <div className="flex-1">
                       <div className="flex items-center gap-3 text-primary mb-4">
                          <Info className="h-5 w-5" />
-                         <span className="tech-label">Engine Reasoning & Jurisdictional Analysis</span>
+                         <span className="tech-label text-foreground/80 uppercase tracking-tighter">Engine Reasoning & Detection Provenance</span>
                       </div>
-                      <p className="text-xl text-foreground font-serif leading-relaxed italic pr-4">
+                      <p className="text-xl text-foreground font-serif leading-relaxed italic pr-4 mb-6">
                         "{selectedConflict.reasoning}"
                       </p>
+                      
+                      {/* Provenance Stepper Section */}
+                      <div className="pt-6 border-t border-border/10">
+                        <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Autonomous Detection Lifecycle</h5>
+                        <div className="flex overflow-x-auto pb-2 gap-8 custom-scrollbar no-scrollbar">
+                          {[
+                            { id: "mon", label: "Monitor", status: "COMPLETED" },
+                            { id: "emb", label: "Embed", status: "COMPLETED" },
+                            { id: "vec", label: "Semantic Search", status: "COMPLETED" },
+                            { id: "vld", label: "Cross-Reference", status: "COMPLETED" },
+                            { id: "cfm", label: "Conflict Match", status: "COMPLETED" },
+                            { id: "fin", label: "Risk Scored", status: "COMPLETED" }
+                          ].map((step, idx) => (
+                            <div key={step.id} className="flex items-center gap-3 shrink-0">
+                              <div className="flex flex-col items-center">
+                                <div className="h-6 w-6 rounded-full border border-primary/30 flex items-center justify-center bg-primary/5">
+                                  <ShieldCheck className="h-3 w-3 text-primary" />
+                                </div>
+                                {idx < 5 && <div className="h-4 w-[1px] bg-border/20 mt-1" />}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="tech-label text-[9px] text-foreground">{step.label}</span>
+                                <span className="text-[8px] font-mono text-primary/60 uppercase">Verified</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="mt-6 flex gap-4">
-                        <span className="font-mono text-[9px] bg-primary/5 text-primary px-2 py-1">SOURCE: {selectedConflict.source.id}</span>
-                        <span className="font-mono text-[9px] bg-secondary/5 text-secondary px-2 py-1">VECTOR: {selectedConflict.target.id}</span>
+                        <span className="font-mono text-[9px] bg-primary/5 text-primary px-2 py-1 uppercase tracking-tighter">AGENT: CORTEX-FIND-09</span>
+                        <span className="font-mono text-[9px] bg-secondary/5 text-secondary px-2 py-1 uppercase tracking-tighter">VECTOR: {selectedConflict.target.id}</span>
                       </div>
                    </div>
                    
-                   <div className="flex flex-col justify-between gap-4 min-w-[180px]">
-                      <button className="flex items-center justify-center gap-3 px-6 py-3 bg-surface-container-low border-[0.5px] border-border/20 text-foreground tech-label hover:bg-surface-container-high transition-all">
+                   <div className="flex flex-col md:flex-row xl:flex-col justify-between gap-4 min-w-[240px] w-full xl:w-auto h-full pt-10 xl:pt-4">
+                      <button className="flex-1 flex items-center justify-center gap-3 px-6 py-3 bg-white/60 border-[0.5px] border-border/20 text-foreground tech-label hover:bg-white transition-all shadow-sm">
                         <ExternalLink className="h-4 w-4" />
-                        Source Link
+                        Provenance Link
                       </button>
                       {!isReadOnly && (
                         <button 
@@ -316,10 +345,16 @@ export default function ConflictMapPage() {
                             toast.success("Conflict queued for legal remediation.");
                             router.push("/dashboard/amendment-workbench");
                           }}
-                          className="flex items-center justify-center gap-3 px-6 py-3 bg-primary text-white tech-label hover:opacity-90 transition-all shadow-xl shadow-primary/20">
+                          className="flex-1 flex items-center justify-center gap-3 px-6 py-3 bg-primary text-white tech-label hover:opacity-90 transition-all shadow-xl shadow-primary/20">
+                          <Zap className="h-4 w-4" />
                           Mitigate Risk
                         </button>
                       )}
+                      <div className="p-3 bg-amber-primary/5 border border-amber-primary/10 rounded-md">
+                         <p className="text-[10px] leading-tight text-amber-primary font-medium">
+                           Neural context suggests a 94.2% semantic certainty in this detected contradiction.
+                         </p>
+                      </div>
                    </div>
                 </div>
                 )}
