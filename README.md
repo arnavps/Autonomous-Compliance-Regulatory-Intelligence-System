@@ -1,5 +1,5 @@
-# RegIntel AI - Autonomous Compliance & Regulatory Intelligence System
-RegIntel AI is an autonomous AI system designed to read every RBI and SEBI circular the moment it's published. It detects contradictions across the entire regulatory corpus, scores its own confidence in every answer, and warns compliance teams 30–90 days before new regulations hit.
+# ACRIS - Autonomous Compliance & Regulatory Intelligence System
+ACRIS is an autonomous AI system designed to read every RBI and SEBI circular the moment it's published. It detects contradictions across the entire regulatory corpus, scores its own confidence in every answer, and warns compliance teams 30–90 days before new regulations hit.
 
 ---
 
