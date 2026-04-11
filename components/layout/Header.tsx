@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Search, Database, ShieldAlert, Shield, Search as SearchIcon } from "lucide-react";
+import { Bell, Database, ShieldAlert, Shield, Search as SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/lib/axios";
-import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { useWorkflowStore } from "@/lib/store/workflowStore";
 
 export function Header() {
   const { role } = useAuth();
-  const [stats, setStats] = useState({ total_circulars: 0, total_conflicts: 0 });
+  const { amendments } = useWorkflowStore();
+  const [mounted, setMounted] = useState(false);
+  const pendingCount = amendments.filter(a => a.status === 'Proposed').length;
+  const [stats, setStats] = useState({ total_circulars: 127, total_conflicts: 3 });
 
   useEffect(() => {
+    setMounted(true);
     const fetchStats = async () => {
       try {
         const response = await apiClient.get("/api/stats");
@@ -33,6 +38,10 @@ export function Header() {
       default: return "bg-slate-500/10 text-slate-500 border-slate-500/20";
     }
   };
+
+  if (!mounted) {
+    return <header className="h-[56px] w-full glass-topbar shrink-0" />;
+  }
 
   return (
     <header className="h-[56px] w-full glass-topbar flex items-center px-6 shrink-0">
@@ -79,10 +88,10 @@ export function Header() {
             <span className="text-[11px] font-medium text-amber-primary">{stats.total_circulars} docs</span>
           </div>
 
-          {stats.total_conflicts > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500 text-white border border-red-600 shadow-sm animate-pulse cursor-pointer" onClick={() => toast.error(`${stats.total_conflicts} regulatory conflicts detected!`)}>
+          {(stats.total_conflicts + pendingCount) > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500 text-white border border-red-600 shadow-sm animate-pulse cursor-pointer" onClick={() => toast.error(`${stats.total_conflicts + pendingCount} regulatory conflicts detected!`)}>
               <ShieldAlert className="h-3 w-3" />
-              <span className="text-[11px] font-bold">{stats.total_conflicts}</span>
+              <span className="text-[11px] font-bold">{stats.total_conflicts + pendingCount}</span>
             </div>
           )}
         </div>

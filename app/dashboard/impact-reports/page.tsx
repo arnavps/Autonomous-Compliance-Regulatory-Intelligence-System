@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const reports = [
   {
@@ -44,6 +47,29 @@ const reports = [
 ];
 
 export default function ImpactReportsPage() {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportList, setReportList] = useState(reports);
+
+  const handleGenerate = () => {
+    setIsGenerating(true);
+    toast.info("Synthesizing multi-modal impact data...", { duration: 3000 });
+    
+    setTimeout(() => {
+      setIsGenerating(false);
+      const newReport = {
+        id: `REP-2026-${Math.floor(Math.random() * 900) + 100}`,
+        title: "Dynamic Regulatory Impact Report",
+        status: "Finalized",
+        date: new Date().toISOString().split('T')[0],
+        impactScore: 78,
+        trend: "up",
+        author: "ACRIS Neural Engine"
+      };
+      setReportList([newReport, ...reportList]);
+      toast.success("Executive report finalized and cryptographically signed.");
+    }, 4000);
+  };
+
   return (
     <div className="h-full flex flex-col space-y-8 animate-in fade-in duration-700">
       {/* Header */}
@@ -66,9 +92,12 @@ export default function ImpactReportsPage() {
             <Filter className="h-4 w-4" />
             Filter Archive
           </button>
-          <button className="flex items-center gap-3 px-8 py-3 metallic-gold text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-xl shadow-amber-primary/20">
-            <FileCheck className="h-4 w-4" />
-            Generate New
+          <button 
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="flex items-center gap-3 px-8 py-3 metallic-gold text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-xl shadow-amber-primary/20 disabled:opacity-50">
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileCheck className="h-4 w-4" />}
+            {isGenerating ? "GENERATING..." : "Generate New"}
           </button>
         </div>
       </div>
@@ -104,7 +133,7 @@ export default function ImpactReportsPage() {
         </div>
         
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {reports.map((report) => (
+          {reportList.map((report) => (
             <motion.div 
               key={report.id}
               whileHover={{ backgroundColor: "rgba(255,255,255,0.4)" }}

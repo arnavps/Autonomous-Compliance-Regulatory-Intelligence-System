@@ -7,6 +7,8 @@ import { apiService } from "../../../services/apiService";
 import { toast } from "sonner";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useWorkflowStore } from "@/lib/store/workflowStore";
+import { useRouter } from "next/navigation";
 
 interface Message {
   role: "user" | "ai";
@@ -17,6 +19,8 @@ interface Message {
 }
 
 export default function QnAPage() {
+  const router = useRouter();
+  const addConflictToWorkbench = useWorkflowStore((state) => state.addConflictToWorkbench);
   const [messages, setMessages] = useState<Message[]>([]);
   const [query, setQuery] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -120,12 +124,24 @@ export default function QnAPage() {
                           Ambiguity Vector Detected
                         </div>
                         <p className="text-xs text-destructive/80 italic mb-6">Contradictory directives found in source documents.</p>
-                        <Link href="/dashboard/conflict-map">
-                          <button className="flex items-center gap-2 px-4 py-2 bg-white border-[0.5px] border-destructive/20 text-destructive text-[9px] font-mono font-bold uppercase transition-colors hover:bg-destructive/5">
-                            <ExternalLink className="h-3 w-3" />
-                            ANALYZE IN CONFLICT EXPLORER
-                          </button>
-                        </Link>
+                        <button 
+                          onClick={() => {
+                            addConflictToWorkbench({
+                              id: `QA-${Math.floor(Math.random() * 9000) + 1000}`,
+                              source: { id: "Query Bot", title: "AI Detected Ambiguity" },
+                              target: { id: "INTERNAL", title: "Institutional Policy" },
+                              severity: 'High',
+                              type: "Regulatory Ambiguity",
+                              reasoning: msg.content,
+                              status: 'Unresolved'
+                            });
+                            toast.success("Ambiguity promoted to legal workbench.");
+                            router.push("/dashboard/amendment-workbench");
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-white border-[0.5px] border-destructive/20 text-destructive text-[9px] font-mono font-bold uppercase transition-colors hover:bg-destructive/5">
+                          <ExternalLink className="h-3 w-3" />
+                          ANALYZE IN CONFLICT EXPLORER
+                        </button>
                       </div>
                     )}
 

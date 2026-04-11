@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -20,11 +20,17 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
+import { useWorkflowStore } from "@/lib/store/workflowStore";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { role } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getNavItems = () => {
     switch (role) {
@@ -56,6 +62,10 @@ export function Sidebar() {
 
   const navItems = getNavItems();
 
+  if (!mounted) {
+    return <div className="h-full w-[240px] glass-sidebar shrink-0" />;
+  }
+
   return (
     <div className={cn(
       "flex h-full flex-col glass-sidebar transition-all duration-300 relative",
@@ -80,8 +90,11 @@ export function Sidebar() {
         "flex-1 py-4 space-y-1 overflow-y-auto no-scrollbar",
         isCollapsed ? "px-2" : "px-3"
       )}>
-        {navItems.map((item) => {
+              {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const pendingAmendments = useWorkflowStore.getState().amendments.filter(a => a.status === 'Proposed').length;
+          const hasBadge = item.name === "Amendment Workbench" && pendingAmendments > 0;
+
           return (
             <Link
               key={item.name}
@@ -102,7 +115,15 @@ export function Sidebar() {
                 )} 
               />
               {!isCollapsed && (
-                <span className="text-[13px] font-medium tracking-tight truncate">{item.name}</span>
+                <span className="text-[13px] font-medium tracking-tight truncate flex-1">{item.name}</span>
+              )}
+              {!isCollapsed && hasBadge && (
+                <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[8px] font-bold animate-pulse">
+                  {pendingAmendments}
+                </span>
+              )}
+              {isCollapsed && hasBadge && (
+                <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary animate-pulse" />
               )}
               {isCollapsed && isActive && (
                 <div className="absolute left-0 w-[3px] h-full bg-amber-primary rounded-full transition-all duration-300" />

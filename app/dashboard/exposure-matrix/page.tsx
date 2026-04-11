@@ -11,20 +11,29 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const matrixData = [
-  { region: "EU", category: "Data Privacy", impact: 92, probability: 40, risk: "High", color: "bg-rose-500" },
-  { region: "US", category: "Securities", impact: 65, probability: 80, risk: "Critical", color: "bg-rose-600" },
-  { region: "IN", category: "Digital Lending", impact: 88, probability: 90, risk: "Critical", color: "bg-rose-700" },
-  { region: "SG", category: "Fintech Licensing", impact: 30, probability: 20, risk: "Low", color: "bg-emerald-500" },
-  { region: "EU", category: "AML/KYC", impact: 55, probability: 60, risk: "Medium", color: "bg-amber-500" },
-  { region: "UK", category: "Consumer Credit", impact: 40, probability: 30, risk: "Medium", color: "bg-amber-400" },
-  { region: "IN", category: "Crypto Taxation", impact: 70, probability: 10, risk: "Medium", color: "bg-amber-600" },
-  { region: "US", category: "Privacy Act", impact: 85, probability: 55, risk: "High", color: "bg-rose-500" },
-  { region: "GLOBAL", category: "Sustainability", impact: 20, probability: 85, risk: "Low", color: "bg-emerald-400" }
-];
+import { useWorkflowStore } from "@/lib/store/workflowStore";
 
 export default function ExposureMatrixPage() {
+  const { riskScores } = useWorkflowStore();
+
+  const getDynamicRisk = (score: number) => {
+    if (score > 80) return { label: "Critical", color: "bg-rose-700" };
+    if (score > 60) return { label: "High", color: "bg-rose-500" };
+    if (score > 30) return { label: "Medium", color: "bg-amber-500" };
+    return { label: "Nominal", color: "bg-emerald-500" };
+  };
+
+  const matrixData = [
+    { region: "EU", category: "Data Privacy", impact: riskScores['EU-Data Privacy'] || 92, probability: 40 },
+    { region: "US", category: "Securities", impact: riskScores['US-Securities'] || 65, probability: 80 },
+    { region: "IN", category: "Digital Lending", impact: riskScores['IN-Digital Lending'] || 88, probability: 90 },
+    { region: "SG", category: "Fintech Licensing", impact: 30, probability: 20 },
+    { region: "EU", category: "AML/KYC", impact: 55, probability: 60 },
+    { region: "UK", category: "Consumer Credit", impact: 40, probability: 30 },
+    { region: "IN", category: "Crypto Taxation", impact: 70, probability: 10 },
+    { region: "US", category: "Privacy Act", impact: 85, probability: 55 },
+    { region: "GLOBAL", category: "Sustainability", impact: 20, probability: 85 }
+  ];
   return (
     <div className="h-full flex flex-col space-y-8 animate-in fade-in duration-700">
       {/* Header */}
@@ -74,40 +83,44 @@ export default function ExposureMatrixPage() {
             </div>
 
             <div className="flex-1 grid grid-cols-3 gap-1 bg-border/5 p-1 border-[0.5px] border-border/10">
-               {matrixData.map((item, i) => (
-                 <motion.div 
-                   key={i}
-                   whileHover={{ scale: 0.99, brightness: 1.1 }}
-                   className={cn(
-                     "relative p-8 flex flex-col justify-between overflow-hidden group cursor-pointer",
-                     item.color
-                   )}
-                 >
-                    {/* Background Overlay */}
-                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    <div className="relative z-10 flex flex-col h-full">
-                       <div className="flex justify-between items-start mb-4">
-                          <span className="font-mono text-[10px] text-white/60 tracking-tighter">{item.region} // {item.category}</span>
-                          <Maximize2 size={12} className="text-white/40 group-hover:text-white transition-colors" />
-                       </div>
-                       
-                       <div className="mt-auto">
-                          <span className="text-2xl font-serif font-bold text-white block mb-1">{item.risk}</span>
-                          <div className="flex items-center gap-2">
-                             <span className="text-[9px] font-mono text-white/70 uppercase">Impact: {item.impact}%</span>
-                             <span className="text-white/20">|</span>
-                             <span className="text-[9px] font-mono text-white/70 uppercase">Prob: {item.probability}%</span>
-                          </div>
-                       </div>
-                    </div>
+               {matrixData.map((item, i) => {
+                 const risk = getDynamicRisk(item.impact);
+                 return (
+                   <motion.div 
+                     key={i}
+                     layout
+                     whileHover={{ scale: 0.99, brightness: 1.1 }}
+                     className={cn(
+                       "relative p-8 flex flex-col justify-between overflow-hidden group cursor-pointer transition-colors duration-1000",
+                       risk.color
+                     )}
+                   >
+                      {/* Background Overlay */}
+                      <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
+                      <div className="relative z-10 flex flex-col h-full">
+                         <div className="flex justify-between items-start mb-4">
+                            <span className="font-mono text-[10px] text-white/60 tracking-tighter">{item.region} // {item.category}</span>
+                            <Maximize2 size={12} className="text-white/40 group-hover:text-white transition-colors" />
+                         </div>
+                         
+                         <div className="mt-auto">
+                            <span className="text-2xl font-serif font-bold text-white block mb-1">{risk.label}</span>
+                            <div className="flex items-center gap-2">
+                               <span className="text-[9px] font-mono text-white/70 uppercase">Impact: {item.impact}%</span>
+                               <span className="text-white/20">|</span>
+                               <span className="text-[9px] font-mono text-white/70 uppercase">Prob: {item.probability}%</span>
+                            </div>
+                         </div>
+                      </div>
 
-                    {/* Technical Decals */}
-                    <div className="absolute right-[-20px] bottom-[-20px] text-white/[0.05] pointer-events-none">
-                       <LayoutGrid size={120} />
-                    </div>
-                 </motion.div>
-               ))}
+                      {/* Technical Decals */}
+                      <div className="absolute right-[-20px] bottom-[-20px] text-white/[0.05] pointer-events-none">
+                         <LayoutGrid size={120} />
+                      </div>
+                   </motion.div>
+                 );
+               })}
             </div>
          </div>
 

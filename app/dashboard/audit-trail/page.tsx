@@ -13,38 +13,43 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const auditLogs = [
-  {
-    timestamp: "2026-04-10 14:22:01",
-    action: "Policy Override",
-    entity: "Section 4.2 Indemnification",
-    user: "Senior Legal Counsel",
-    id: "LOG-9921",
-    status: "Verified",
-    hash: "0x4f2...a1b2"
-  },
-  {
-    timestamp: "2026-04-10 12:05:44",
-    action: "Document Signature",
-    entity: "Master Services Agreement - Alpha Corp",
-    user: "System Agent (Auto-Sign)",
-    id: "LOG-9920",
-    status: "Verified",
-    hash: "0x88d...ff34"
-  },
-  {
-    timestamp: "2026-04-09 18:30:12",
-    action: "Compliance Approval",
-    entity: "Q1 Impact Statement",
-    user: "Compliance Officer",
-    id: "LOG-9919",
-    status: "Flagged",
-    hash: "0xcc4...9e10"
-  }
-];
+import { useWorkflowStore } from "@/lib/store/workflowStore";
 
 export default function AuditTrailPage() {
+  const { amendments } = useWorkflowStore();
+  
+  const dynamicLogs = amendments.filter(a => a.status === 'Approved').map(a => ({
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+    action: "Policy Remediation",
+    entity: a.clause,
+    user: "Legal Counsel",
+    id: `LOG-${a.id}`,
+    status: "Verified",
+    hash: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`
+  }));
+
+  const staticLogs = [
+    {
+      timestamp: "2026-04-10 14:22:01",
+      action: "Policy Override",
+      entity: "Section 4.2 Indemnification",
+      user: "Senior Legal Counsel",
+      id: "LOG-9921",
+      status: "Verified",
+      hash: "0x4f2...a1b2"
+    },
+    {
+      timestamp: "2026-04-10 12:05:44",
+      action: "Document Signature",
+      entity: "Master Services Agreement - Alpha Corp",
+      user: "System Agent (Auto-Sign)",
+      id: "LOG-9920",
+      status: "Verified",
+      hash: "0x88d...ff34"
+    }
+  ];
+
+  const auditLogs = [...dynamicLogs, ...staticLogs];
   return (
     <div className="h-full flex flex-col space-y-8 animate-in fade-in duration-700">
       {/* Header */}
@@ -77,10 +82,10 @@ export default function AuditTrailPage() {
       {/* Audit Stats Grid */}
       <div className="grid grid-cols-4 gap-6">
          {[
-           { label: "Total Events", value: "12,408" },
+           { label: "Total Events", value: (12408 + dynamicLogs.length).toLocaleString() },
            { label: "Verified Claims", value: "100%", color: "text-emerald-600" },
            { label: "Policy Overrides", value: "24" },
-           { label: "Neural Attestations", value: "8,291" }
+           { label: "Neural Attestations", value: (8291 + dynamicLogs.length).toLocaleString() }
          ].map((stat, i) => (
            <div key={i} className="p-6 bg-surface-container-low border-[0.5px] border-border/20">
               <span className="tech-label text-muted-foreground block mb-2">{stat.label}</span>

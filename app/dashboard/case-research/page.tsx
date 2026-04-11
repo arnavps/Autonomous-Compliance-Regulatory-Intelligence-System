@@ -10,19 +10,32 @@ import {
   CornerDownRight,
   ShieldAlert,
   ChevronRight,
-  Loader2
+  Loader2,
+  FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CaseResearchPage() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   const handleSearch = () => {
     if (!query) return;
     setIsSearching(true);
-    setTimeout(() => setIsSearching(false), 1500);
+    setSearchResults([]);
+    setTimeout(() => {
+      setIsSearching(false);
+      setSearchResults([
+        { title: `In Re: ${query} Interpretations`, citation: "2024 SCC Online SC 882", relevance: "0.98", summary: "Detailed brief on regulatory frameworks." },
+        { title: "Institutional Lending v. State", citation: "Civil Appeal 442/2023", relevance: "0.84", summary: "Precedent regarding fiduciary duties." }
+      ]);
+      toast.success("Intelligence Engine: 2 nodes matched.");
+    }, 1500);
   };
 
   const precedents = [
@@ -115,7 +128,9 @@ export default function CaseResearchPage() {
                <p className="text-xs text-muted-foreground leading-relaxed">
                  A recent high-court ruling may affect standard arbitration clauses in NBFC contracts.
                </p>
-               <button className="mt-4 flex items-center gap-2 text-primary tech-label hover:gap-3 transition-all">
+               <button 
+                 onClick={() => router.push("/dashboard/amendment-workbench")}
+                 className="mt-4 flex items-center gap-2 text-primary tech-label hover:gap-3 transition-all">
                  Review Amendment <ChevronRight className="h-3 w-3" />
                </button>
             </div>

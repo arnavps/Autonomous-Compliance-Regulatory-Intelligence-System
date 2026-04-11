@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Radar, Zap, ShieldAlert, ChevronRight } from "lucide-react";
+import { Radar, Zap, ShieldAlert, ChevronRight, AlertCircle } from "lucide-react";
 import apiClient from "@/lib/axios";
 import { cn } from "@/lib/utils";
+import { useWorkflowStore } from "@/lib/store/workflowStore";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function EarlyWarningPage() {
+  const router = useRouter();
+  const addConflictToWorkbench = useWorkflowStore((state) => state.addConflictToWorkbench);
   const [activeAnalysis, setActiveAnalysis] = useState<number | null>(null);
   const [warnings, setWarnings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,18 +115,43 @@ export default function EarlyWarningPage() {
                            <span className="text-[9px] uppercase text-muted-foreground/40 font-mono mb-1">Affected Entities</span>
                            <span className="text-xs font-serif italic text-foreground">{warning.affected_entities}</span>
                         </div>
-                        <div className="flex flex-col">
+                         <div className="flex flex-col">
                            <span className="text-[9px] uppercase text-muted-foreground/40 font-mono mb-1">Strategy Recommendation</span>
                            <span className="text-xs font-serif italic text-foreground">Proactive adjustment of compliance vectors recommended.</span>
                         </div>
-                        <a 
-                          href={warning.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="block pt-2 text-[10px] font-mono font-bold text-secondary hover:underline"
-                        >
-                          OPEN SOURCE DOCUMENT →
-                        </a>
+                        
+                        <div className="pt-4 flex gap-4">
+                           <a 
+                             href={warning.url} 
+                             target="_blank" 
+                             rel="noopener noreferrer" 
+                             className="flex-1 flex items-center justify-center border-[0.5px] border-border/20 py-3 text-[10px] font-mono font-bold text-muted-foreground hover:bg-white hover:text-foreground transition-all"
+                           >
+                             OPEN SOURCE
+                           </a>
+                           {warning.urgency === 'High' && (
+                             <button 
+                               onClick={() => {
+                                 // Simulate creating a conflict from a warning
+                                 addConflictToWorkbench({
+                                   id: `WARN-${warning.id || i}`,
+                                   source: { id: warning.issuing_body, title: warning.title },
+                                   target: { id: "INTERNAL", title: "Institutional Lending Policy" },
+                                   severity: 'High',
+                                   type: "Predictive Deviation",
+                                   reasoning: warning.proposed_change,
+                                   status: 'Unresolved'
+                                 });
+                                 toast.success("Signal promoted to active conflict ledger.");
+                                 router.push("/dashboard/amendment-workbench");
+                               }}
+                               className="flex-1 flex items-center justify-center bg-primary py-3 text-[10px] font-mono font-bold text-white hover:bg-amber-900 transition-all gap-2"
+                             >
+                               <AlertCircle size={12} />
+                               MITIGATE RISK
+                             </button>
+                           )}
+                        </div>
                      </div>
                    </div>
                  )}

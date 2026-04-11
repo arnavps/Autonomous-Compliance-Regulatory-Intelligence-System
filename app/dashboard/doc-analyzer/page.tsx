@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export default function DocAnalyzerPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<{name: string, date: string, clauses: number}[]>([
+  const [uploadedFiles, setUploadedFiles] = useState<{name: string, date: string, clauses: number, isSyncing?: boolean}[]>([
     { name: "Indian_Bank_KYC_Policy_v4.2.pdf", date: "SEP 28, 2024", clauses: 42 },
     { name: "Retail_Lending_Guidelines_Draft.docx", date: "SEP 15, 2024", clauses: 18 }
   ]);
@@ -88,6 +88,10 @@ export default function DocAnalyzerPage() {
             />
             <button 
               type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUploadClick();
+              }}
               className="px-10 py-3 bg-primary text-white text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-amber-900 transition-colors shadow-2xl"
             >
               LOCATE FILES
@@ -132,9 +136,20 @@ export default function DocAnalyzerPage() {
                 </div>
               </div>
               <button 
-                onClick={() => toast.success(`Re-running sync for ${file.name}...`)}
-                className="tech-label text-muted-foreground/30 hover:text-primary transition-colors">
-                RE-SYNC VECTOR
+                disabled={file.isSyncing}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setUploadedFiles(prev => prev.map((f, idx) => idx === i ? { ...f, isSyncing: true } : f));
+                  setTimeout(() => {
+                    setUploadedFiles(prev => prev.map((f, idx) => idx === i ? { ...f, isSyncing: false, date: "NOW" } : f));
+                    toast.success(`Synched: ${file.name} vectors updated.`);
+                  }, 2000);
+                }}
+                className={cn(
+                  "tech-label transition-colors",
+                  file.isSyncing ? "text-primary animate-pulse" : "text-muted-foreground/30 hover:text-primary"
+                )}>
+                {file.isSyncing ? "SYNCING..." : "RE-SYNC VECTOR"}
               </button>
             </div>
           ))}

@@ -12,26 +12,10 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useWorkflowStore } from "@/lib/store/workflowStore";
 
 export default function AmendmentWorkbenchPage() {
-  const diffs = [
-    { 
-      id: "CL-01", 
-      clause: "Section 4.2: Indemnification", 
-      oldText: "The company shall indemnify the customer for any loss arising from...",
-      newText: "The company's liability for indemnification shall be capped at 1.5x the annual fee, except in cases of gross negligence...",
-      status: "Proposed",
-      reason: "Align with latest RBI circular on Digital Lending risk caps."
-    },
-    { 
-      id: "CL-05", 
-      clause: "Section 9.1: Data Residency", 
-      oldText: "Data may be stored in regional data centers.",
-      newText: "All primary and secondary data sets must remain within Indian jurisdictional boundaries as per DPDP 2023.",
-      status: "Approved",
-      reason: "Regulatory mandate compliance (Live Vector #334)."
-    }
-  ];
+  const { amendments: diffs, approveAmendment, revertAll } = useWorkflowStore();
 
   return (
     <div className="h-full flex flex-col space-y-8 animate-in fade-in duration-700">
@@ -51,13 +35,16 @@ export default function AmendmentWorkbenchPage() {
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-3 px-6 py-2.5 bg-surface-container-low border-[0.5px] border-border/30 text-[10px] font-bold uppercase tracking-widest hover:bg-surface-container-high transition-all">
+          <button 
+            onClick={() => revertAll()}
+            className="flex items-center gap-3 px-6 py-2.5 bg-surface-container-low border-[0.5px] border-border/30 text-[10px] font-bold uppercase tracking-widest hover:bg-surface-container-high transition-all">
              <RotateCcw className="h-4 w-4" />
-             Revert All
+             Cleanup Workbench
           </button>
-          <button className="flex items-center gap-3 px-8 py-3 bg-foreground text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all">
+          <button 
+            className="flex items-center gap-3 px-8 py-3 bg-foreground text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all opacity-30 cursor-not-allowed">
              <Save className="h-4 w-4" />
-             Commit Changes
+             Institutional Commit
           </button>
         </div>
       </div>
@@ -77,12 +64,24 @@ export default function AmendmentWorkbenchPage() {
                       <span className="font-mono text-[9px] text-muted-foreground">ID: {diff.id}</span>
                     </div>
                   </div>
-                  <span className={cn(
-                    "tech-label px-2 py-0.5",
-                    diff.status === "Approved" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
-                  )}>
-                    {diff.status}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className={cn(
+                      "tech-label px-2 py-0.5",
+                      diff.status === "Approved" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                    )}>
+                      {diff.status}
+                    </span>
+                    {diff.status === "Proposed" && (
+                      <button 
+                        onClick={() => {
+                          approveAmendment(diff.id);
+                          toast.success("Amendment applied to Institutional Ledger.");
+                        }}
+                        className="px-4 py-1.5 bg-foreground text-white text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
+                        Approve
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-8">

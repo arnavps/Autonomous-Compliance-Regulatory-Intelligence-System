@@ -17,11 +17,14 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
-
 import { useAuth } from "@/lib/auth-context";
+import { useWorkflowStore } from "@/lib/store/workflowStore";
+import { useRouter } from "next/navigation";
 
 export default function ConflictMapPage() {
+  const router = useRouter();
   const { role } = useAuth();
+  const addConflictToWorkbench = useWorkflowStore((state) => state.addConflictToWorkbench);
   const isReadOnly = role !== "COMPLIANCE";
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
@@ -308,7 +311,11 @@ export default function ConflictMapPage() {
                       </button>
                       {!isReadOnly && (
                         <button 
-                          onClick={() => toast.info("Drafting resolution memo for legal review...")}
+                          onClick={() => {
+                            addConflictToWorkbench(selectedConflict);
+                            toast.success("Conflict queued for legal remediation.");
+                            router.push("/dashboard/amendment-workbench");
+                          }}
                           className="flex items-center justify-center gap-3 px-6 py-3 bg-primary text-white tech-label hover:opacity-90 transition-all shadow-xl shadow-primary/20">
                           Mitigate Risk
                         </button>
