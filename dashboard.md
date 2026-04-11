@@ -1,81 +1,80 @@
-# 🏛️ ACRIS Dashboard: The Comprehensive Guide
+# 🏛️ ACRIS Dashboard: The Sovereign Guide
 
-The ACRIS platform is designed as a **Role-Based Sovereign Intelligence** environment. Depending on your role, the dashboard adapts to provide either deep technical control, strategic oversight, or legal remediation tools.
+The ACRIS platform is designed as a **Role-Based Sovereign Intelligence** environment. Built on the **Sovereign Ledger** design system, the dashboard utilizes high-fidelity visual tokens to communicate regulatory urgency and agentic consensus.
 
 ---
 
 ## 🛰️ 1. Compliance Officer (The Orchestrator)
-*Goal: Manage the "Ingestion" of new laws and ensure the system is healthy.*
+*Goal: Manage the ingestion of regulatory data and monitor the autonomous health of the institution.*
 
 ### 📄 Document Analyzer
-- **Why it’s there**: This is the "Entry Port" for the platform. When new internal policies or circulars arrive, they are uploaded here.
+- **Why it’s there**: The primary ingress port for the platform. It handles the structural decomposition of internal policies and external circulars.
 - **Key Features**: 
-    - **Sovereign Ingress**: A button that starts the autonomous pipeline.
-    - **Live Agent Logs**: A real-time terminal (bottom-right) that shows exactly what the AI agents are thinking (e.g., "Parsing Section 4").
-    - **Step-by-Step Tracker**: A vertical progress bar showing how far along the document is in being understood by the system.
+    - **Sovereign Ingress**: A high-action orchestration hub to initiate the AI pipeline.
+    - **Neural Step-Trace**: A vertical, real-time lineage tracker showing the precise state of document decomposition.
+    - **Live Agent Pulse**: A low-level diagnostic terminal that exposes the microscopic logic of each autonomous agent.
 
-### 📜 Audit Trail
-- **Why it’s there**: To provide "Trust through Transparency." Every single AI action is logged here permanently.
+### 📜 Audit Trail (Sovereign Ledger)
+- **Why it’s there**: To provide immutable record-keeping. Every AI decision and human modification is hashed and timestamped.
 - **Key Features**:
-    - **Cryptographic Signing**: Each event has a unique ID, proving that the record hasn't been tampered with.
-    - **Agent Identities**: Shows which specific agent (e.g., *Cortex-Parse-01*) performed a task.
+    - **Provenance Verification**: Cryptographic signatures for every autonomous action.
+    - **Entity Lineage**: Detailed mapping of which agent (e.g., *Refiner-01*) modified which legal paragraph.
 
 ### 📊 Impact Reports
-- **Why it’s there**: To give executives a "Bird's Eye View" of compliance health without the technical jargon.
+- **Why it’s there**: Strategic synthesis for executive decision-makers.
 - **Key Features**:
-    - **Compliance Health Score**: A percentage (e.g., 94%) representing how safe the institution is.
-    - **Trend Tracking**: Arrows showing if risk is going up or down over the last month.
+    - **Institutional Health Index**: A dynamic risk-weighted percentage indicating system-wide compliance.
+    - **Executive Synthesis**: AI-generated briefings on regulatory cost-benefit analysis.
 
 ---
 
 ## ⚖️ 2. Lawyer (The Remediation Expert)
-*Goal: Fix legal contradictions and draft official institutional amendments.*
+*Goal: Resolve contradictions and institutionalize legal amendments.*
 
 ### 🛠️ Amendment Workbench
-- **Why it’s there**: The "Legal Lab." When the system finds a conflict, the Lawyer comes here to rewrite the policy to fix it.
+- **Why it’s there**: The **Constitutional Workbench**. This is where contradictions are resolved through precision legal drafting.
 - **Key Features**:
-    - **Diff View**: Shows the "Old Text" in red and the AI-proposed "New Text" in green side-by-side.
-    - **Approve/Commit**: A simple button to confirm a legal change and update the institution's official ledger.
+    - **Neural Draft Synthesis**: Side-by-side "Proposed vs. Current" legal text with automated citation generation.
+    - **Remediation Stepper**: A structured workflow for drafting, vetting, and committing amendments to the institutional ledger.
 
-### 🔍 Conflict Map (Conflict Explorer)
-- **Why it’s there**: To visualize the "Spider Web" of legal contradictions.
+### 🔍 Conflict Explorer
+- **Why it’s there**: To visualize the **Neural Latency Map**—the web of legal contradictions.
 - **Key Features**:
-    - **Relational Graph**: A visual map connecting Source A (a Law) to Source B (an Internal Policy) that are fighting each other.
-    - **Detection Provenance**: A stepper showing accurately "How" the AI found this conflict (e.g., "Semantic Match Verified").
-
-### 📚 Case Research
-- **Why it’s there**: A deep-dive library for studying specific legal precedents or complex circulars.
-- **Key Features**:
-    - **Neural Search**: Ask questions in plain English and get answers directly from the rulebooks.
+    - **Relational Lattice**: A force-directed graph connecting conflicting legal mandates.
+    - **Conflict Provenance**: A step-by-step audit of how the AI identified the semantic misalignment between rules.
 
 ---
 
 ## 📈 3. Risk Analyst (The Strategic Overseer)
-*Goal: Identify future vulnerabilities and "Stress Test" the institution.*
+*Goal: Forecast regulatory shifts and stress-test institutional exposure.*
 
 ### 🛡️ Risk Dashboard
-- **Why it’s there**: The "General’s Cockpit." It shows total threats across all areas of the business.
+- **Why it’s there**: The **Intelligence Cockpit**. A global view of institutional health and pipeline efficiency.
 - **Key Features**:
-    - **Aggregate Risk Gauge**: A large circular dial (e.g., Level 68 - High Risk) showing immediate danger levels.
-    - **Temporal Variance**: A bar chart showing how risk levels have fluctuated over the last 24 hours.
+    - **Pipeline Mini-Status**: A real-time role-based indicator showing the health of the autonomous orchestration brain.
+    - **Exposure Lattice**: A high-density heatmap mapping regulatory domains against business entities.
+    - **Mandate Horizon**: A temporal timeline of upcoming enforcement windows.
 
 ### 🚨 Early Warning Radar
-- **Why it’s there**: Predictive intelligence. It looks for "Sentiment shifts" in the market to warn you before a new law is even passed.
+- **Why it’s there**: Predictive scanning. It identifies high-risk regulatory shifts before they become mandates.
 - **Key Features**:
-    - **Sentiment Heatmap**: A colorful grid showing which departments are most likely to be affected by upcoming changes.
-    - **Pulse Monitor**: A live wave-chart representing the "Legal stress" currently on the system.
+    - **Neural Impact Mesh**: A detailed grid juxtaposing current rules against proposed drafts with AI-detected risk vectors.
+    - **Radar Insights Overlay**: A persistent floating assistant providing real-time intelligence on radar signals.
+    - **Horizon Scanning Timeline**: A long-term vista of regulatory mandates and enforcement dates.
 
 ### 🌡️ Exposure Matrix
-- **Why it’s there**: To show "Where we are most vulnerable."
+- **Why it’s there**: The **Intelligence Lattice**. A spatial visualization of institutional vulnerability.
 - **Key Features**:
-    - **Vulnerability Grid**: Maps "Jurisdictions" (e.g., India vs. EU) against "Obligations" to see exactly where compliance is weakest.
+    - **Vector Mapping**: Correlating jurisdiction-specific changes with total financial and operational exposure.
 
 ---
 
-## 🤖 Global Features (Available to All)
-### 🧠 Neural Legal Engine (Q&A)
-- **Why it’s there**: Your "Always-On" Legal Assistant.
-- **Feature**: Type any question (e.g., *"What are the KYC limits for digital wallets?"*) and get a source-backed answer immediatey.
+## 🤖 Global Intelligence
+### 🧠 Neural Q&A (The Thinker)
+- **Why it’s there**: An "Always-On" regulatory advisory terminal.
+- **Key Features**: 
+    - **Agent Consensus Status**: Visual meters showing the confidence level of the AI brain for every answer.
+    - **Consensus Visualization**: A live "Thinking Map" showing how multiple agents reached a single legal conclusion.
 
-### 🔔 Agent Status (Header)
-- **Why it’s there**: This pulsing dot at the top informs you when the AI's "Autonomous Brain" is busy processing data in the background.
+### 🔔 Agent Status (Persistent Header)
+- **Visual**: A pulsing active indicator in the top header showing when the system is under **Autonomous Load**.
