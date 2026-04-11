@@ -36,26 +36,25 @@ export function Sidebar() {
     switch (role) {
       case "LAWYER":
         return [
-          { name: "Case Research", href: "/dashboard/case-research", icon: Scale },
-          { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
+          { name: "Impact Reports", href: "/dashboard/impact-reports", icon: FileCheck },
           { name: "Amendment Workbench", href: "/dashboard/amendment-workbench", icon: AppWindow },
-          { name: "Audit Trail", href: "/dashboard/audit-trail", icon: History },
+          { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
+          { name: "Case Research", href: "/dashboard/case-research", icon: Scale },
         ];
       case "RISK":
         return [
           { name: "Risk Dashboard", href: "/dashboard/risk-dashboard", icon: Gauge },
+          { name: "Exposure Matrix", href: "/dashboard/exposure-matrix", icon: LayoutGrid },
           { name: "Early Warning Radar", href: "/dashboard/early-warning", icon: Radar },
           { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
-          { name: "Exposure Matrix", href: "/dashboard/exposure-matrix", icon: LayoutGrid },
         ];
       case "COMPLIANCE":
       default:
         return [
           { name: "Regulatory Q&A", href: "/dashboard/q-and-a", icon: MessageSquare },
-          { name: "Conflict Explorer", href: "/dashboard/conflict-map", icon: Map },
-          { name: "Early Warning Radar", href: "/dashboard/early-warning", icon: Radar },
           { name: "Document Analyzer", href: "/dashboard/doc-analyzer", icon: FileSearch },
-          { name: "Impact Reports", href: "/dashboard/impact-reports", icon: FileCheck },
+          { name: "Audit Trail", href: "/dashboard/audit-trail", icon: History },
+          { name: "Early Warning Radar", href: "/dashboard/early-warning", icon: Radar },
         ];
     }
   };

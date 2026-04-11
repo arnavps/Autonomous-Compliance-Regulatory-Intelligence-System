@@ -10,7 +10,12 @@ import {
   ExternalLink,
   ShieldCheck,
   Zap,
-  Loader2
+  Loader2,
+  X,
+  Maximize2,
+  Minimize2,
+  Search,
+  ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -27,10 +32,11 @@ export default function ConflictMapPage() {
   const addConflictToWorkbench = useWorkflowStore((state) => state.addConflictToWorkbench);
   const isReadOnly = role !== "COMPLIANCE";
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
 
   // Live Data Fetching
-  const { data: conflicts, isLoading } = useQuery({
+  const { data: conflictsRes, isLoading } = useQuery({
     queryKey: ["conflict-map"],
     queryFn: () => apiService.getConflictMap(),
   });
@@ -40,329 +46,423 @@ export default function ConflictMapPage() {
     mutationFn: (data: any) => apiService.triggerImpactReport(data),
     onSuccess: (data) => {
       toast.success("Regulatory Impact Report generation started.", {
-        description: `Task ID: ${data.task_id.slice(0, 8)}`,
+        description: `Task ID: ${data.task_id?.slice(0, 8)}`,
       });
     },
     onError: () => toast.error("Failed to trigger impact report."),
   });
 
-  const activeConflicts = Array.isArray(conflicts) ? conflicts : (conflicts as any)?.conflicts || [];
-  const selectedConflict = activeConflicts?.find((c: any) => c.id === selectedId) || activeConflicts[0];
+  const conflicts = Array.isArray(conflictsRes) ? conflictsRes : (conflictsRes as any)?.conflicts || [];
+  const selectedConflict = conflicts.find((c: any) => c.id === selectedId) || (conflicts.length > 0 ? conflicts[0] : null);
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      <div className="h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        <p className="font-label text-xs uppercase tracking-widest text-muted-foreground">Initializing Neural Semantic Engine...</p>
       </div>
     );
   }
 
+  const handleSelectConflict = (id: string) => {
+    setSelectedId(id);
+    setIsDrawerOpen(true);
+  };
+
   return (
-    <div className="h-full flex flex-col space-y-8 animate-in fade-in duration-700">
-      {/* Header Section - Editorial Style */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b-[0.5px] border-border/20">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="tech-label px-2 py-0.5 bg-accent text-accent-foreground">LIVE SEMANTIC ENGINE</span>
-            <span className="h-[1px] w-12 bg-border/30" />
+    <div className="fixed inset-0 top-16 left-64 bg-background flex flex-col overflow-hidden animate-in fade-in duration-700">
+      {/* View Header & Filters */}
+      <header className="p-6 bg-surface flex flex-col gap-4 border-b border-outline-variant/10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Conflict Explorer</h1>
+            <span className="bg-primary-fixed text-primary px-3 py-1 font-label text-[10px] font-bold tracking-widest uppercase">LIVE SEMANTIC ENGINE</span>
           </div>
-          <h1 className="text-4xl font-serif tracking-tight text-foreground">
-            Conflict Explorer
-          </h1>
-          <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
-            Analyzing contradictory mandates across <span className="font-mono text-primary font-bold">2,400+</span> regulatory vectors using the ACRIS Neural Ledger.
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex bg-surface-container-low p-0.5 border-[0.5px] border-border/30">
-            <button 
-              onClick={() => setViewMode("graph")}
-              className={cn(
-                "px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all",
-                viewMode === "graph" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Network
-            </button>
-            <button 
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all",
-                viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Linear
-            </button>
-          </div>
-          
-          {!isReadOnly && (
-            <button
-              onClick={() => reportMutation.mutate(selectedConflict)}
-              disabled={reportMutation.isPending}
-              className="flex items-center gap-3 px-8 py-3 metallic-gold text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-50"
-            >
-              {reportMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Share2 className="h-4 w-4" />
-              )}
-              Export Intelligence
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0">
-        
-        {/* Left Sidebar: Findings List */}
-        <div className="lg:col-span-4 flex flex-col space-y-6 overflow-y-auto pr-2 custom-scrollbar no-scrollbar">
-          <div className="flex items-center justify-between px-1">
-             <h3 className="tech-label text-muted-foreground">Detected Contradictions</h3>
-             <span className="font-mono text-[10px] text-primary bg-primary/5 px-2 py-0.5">{activeConflicts.length} Active</span>
-          </div>
-
-          <div className="space-y-3">
-            {activeConflicts.map((conflict: any) => (
-              <motion.div
-                key={conflict.id}
-                onClick={() => setSelectedId(conflict.id)}
+          <div className="flex items-center gap-2">
+            <div className="flex bg-surface-container rounded-none p-1 border border-outline-variant/20">
+              <button 
+                onClick={() => setViewMode("graph")}
                 className={cn(
-                  "p-6 border-[0.5px] cursor-pointer transition-all duration-300 relative group",
-                  selectedConflict?.id === conflict.id 
-                    ? "bg-white border-primary shadow-xl shadow-primary/5" 
-                    : "bg-surface-container-low border-border/20 hover:border-border/60"
+                  "px-4 py-1.5 font-label text-[11px] font-bold uppercase tracking-tight transition-all",
+                  viewMode === "graph" ? "bg-surface text-primary" : "text-on-surface-variant hover:text-on-surface"
                 )}
               >
-                {/* Status Ribbon */}
-                <div className={cn(
-                  "absolute left-0 top-0 bottom-0 w-[3px]",
-                  conflict.severity === "High" ? "bg-destructive" : "bg-primary"
-                )} />
+                Network
+              </button>
+              <button 
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "px-4 py-1.5 font-label text-[11px] font-bold uppercase tracking-tight transition-all",
+                  viewMode === "list" ? "bg-surface text-primary" : "text-on-surface-variant hover:text-on-surface"
+                )}
+              >
+                List
+              </button>
+            </div>
+            {!isReadOnly && (
+              <button 
+                onClick={() => reportMutation.mutate(selectedConflict)}
+                disabled={reportMutation.isPending}
+                className="flex items-center gap-2 border border-primary text-primary px-5 py-2 font-label text-[11px] font-bold uppercase tracking-widest hover:bg-primary-fixed transition-all disabled:opacity-50"
+              >
+                {reportMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+                Export Intelligence
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {/* Filter Chips */}
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+          <span className="font-label text-[11px] font-bold uppercase text-outline mr-2 tracking-tighter">Filter by:</span>
+          <button className="flex items-center gap-2 px-3 py-1.5 border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase hover:bg-surface-container-low transition-colors">
+            Topic: KYC <ChevronDown className="h-3 w-3" />
+          </button>
+          <button className="flex items-center gap-2 px-3 py-1.5 border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase hover:bg-surface-container-low transition-colors">
+            Regulator: All <ChevronDown className="h-3 w-3" />
+          </button>
+          <button className="flex items-center gap-2 px-3 py-1.5 border border-outline-variant/30 text-error font-label text-[10px] font-bold uppercase hover:bg-error/5 transition-colors">
+            Severity: High <X className="h-3 w-3" />
+          </button>
+          <div className="h-4 w-[1px] bg-outline-variant/30 mx-1"></div>
+          <button className="text-primary font-label text-[10px] font-bold uppercase hover:underline">Clear All</button>
+        </div>
+      </header>
 
-                <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Left Panel: Detected Contradictions (35%) */}
+        <section className="w-[35%] flex flex-col bg-surface-container-low border-r border-outline-variant/10">
+          <div className="p-6 border-b border-outline-variant/10 flex justify-between items-end">
+            <div>
+              <p className="font-label text-[10px] font-bold text-outline uppercase tracking-widest mb-1">Status Report</p>
+              <h2 className="font-headline text-xl font-bold text-on-surface">{conflicts.length} Detected Contradictions</h2>
+            </div>
+            <span className="font-label text-[10px] font-bold text-on-surface-variant">SORT BY: RECENT</span>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-20">
+            {conflicts.map((conflict: any) => (
+              <motion.div
+                key={conflict.id}
+                onClick={() => handleSelectConflict(conflict.id)}
+                whileHover={{ x: 4 }}
+                className={cn(
+                  "group relative bg-surface-container-lowest p-5 border-l-2 transition-all cursor-pointer",
+                  conflict.severity === "High" ? "border-error" : "border-primary-container",
+                  selectedId === conflict.id ? "ring-1 ring-primary-fixed-dim shadow-lg" : "hover:shadow-md"
+                )}
+              >
+                <div className="flex justify-between items-start mb-3">
                   <span className={cn(
-                    "tech-label px-2 py-0.5",
-                    conflict.severity === "High" ? "text-destructive" : "text-primary"
+                    "px-2 py-0.5 font-label text-[9px] font-bold uppercase",
+                    conflict.severity === "High" ? "bg-error/10 text-error" : "bg-primary-container/10 text-primary-container"
                   )}>
-                    {conflict.severity} Impact
+                    {conflict.severity} Severity
                   </span>
-                  <span className="font-mono text-[9px] text-muted-foreground">{conflict.type}</span>
+                  <span className="font-label text-[11px] font-mono text-outline uppercase tracking-tight">#{conflict.id?.slice(-8)}</span>
                 </div>
-                
-                <h4 className="text-base font-bold text-foreground mb-3 leading-tight font-sans italic border-l-2 border-border/10 pl-3">
-                  {conflict.source.id} <span className="text-muted-foreground font-normal not-italic mx-1">vs</span> {conflict.target.id}
-                </h4>
-                
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-sans">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="bg-secondary-container/20 text-on-secondary-container px-3 py-1 font-label text-[10px] font-bold uppercase tracking-wider">
+                    {conflict.source?.id || "N/A"}
+                  </span>
+                  <span className="text-on-surface-variant font-black">≠</span>
+                  <span className="bg-tertiary-container/10 text-tertiary-container px-3 py-1 font-label text-[10px] font-bold uppercase tracking-wider">
+                    {conflict.target?.id || "N/A"}
+                  </span>
+                </div>
+                <h3 className="font-headline text-lg font-bold text-on-surface mb-2 leading-snug">
+                  {conflict.title || "Regulatory Contradiction Detected"}
+                </h3>
+                <p className="text-sm text-on-surface-variant line-clamp-2 font-body leading-relaxed italic">
                   {conflict.reasoning}
                 </p>
-                
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex -space-x-1">
-                     <div className="h-7 w-7 bg-surface-container-highest flex items-center justify-center border-[0.5px] border-border/20 text-primary">
-                       <ShieldCheck className="h-3.5 w-3.5" />
-                     </div>
-                     <div className="h-7 w-7 bg-surface-container-highest flex items-center justify-center border-[0.5px] border-border/20 text-secondary">
-                       <Zap className="h-3.5 w-3.5" />
-                     </div>
-                  </div>
-                  <ArrowRight className={cn(
-                    "h-4 w-4 transition-all group-hover:translate-x-1",
-                    selectedConflict?.id === conflict.id ? "text-primary" : "text-muted-foreground/30"
-                  )} />
-                </div>
               </motion.div>
             ))}
           </div>
-          
-          <div className="p-8 border-[0.5px] border-dashed border-border/40 bg-surface-container-lowest flex flex-col items-center justify-center text-center opacity-60">
-            <div className="h-12 w-12 bg-white flex items-center justify-center mb-4 shadow-sm border-[0.5px] border-border/10">
-              <ShieldCheck className="h-6 w-6 text-tertiary" />
-            </div>
-            <p className="tech-label text-muted-foreground">All other 2,398 vectors verified compliant.</p>
-          </div>
-        </div>
+        </section>
 
-        {/* Main Area: Relational Graph Engine */}
-        <div className="lg:col-span-8 bg-surface-container-low border-[0.5px] border-border/20 relative overflow-hidden flex flex-col p-10 min-h-[600px]">
-           {/* Technical Blueprint Grid */}
-           <div className="absolute inset-0 bg-[linear-gradient(to_right,#85746612_1px,transparent_1px),linear-gradient(to_bottom,#85746612_1px,transparent_1px)] [background-size:40px_40px]" />
-           
-           <div className="relative z-10 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-12">
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 metallic-gold text-white flex items-center justify-center shadow-2xl shadow-primary/20">
-                       <Map className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <span className="tech-label block">Relational Knowledge Graph</span>
-                      <span className="text-[10px] text-muted-foreground font-mono">ID: ACRIS-SEM-GRAPH-004</span>
-                    </div>
-                 </div>
-                 <div className="flex gap-4">
-                    <div className="flex items-center gap-2">
-                       <div className="h-1.5 w-1.5 bg-primary" />
-                       <span className="tech-label text-muted-foreground">Reference</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <div className="h-1.5 w-1.5 bg-destructive" />
-                       <span className="tech-label text-muted-foreground">Violation</span>
-                    </div>
-                 </div>
-              </div>
-
-              {/* SVG Graph Canvas */}
-              <div className="flex-1 relative flex items-center justify-center">
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  <defs>
-                    <marker id="arrow" viewBox="0 0 10 10" refX="25" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#884e00" />
-                    </marker>
-                    <linearGradient id="edgeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#884e00" stopOpacity="0.2" />
-                      <stop offset="50%" stopColor="#ba1a1a" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#884e00" stopOpacity="0.2" />
-                    </linearGradient>
-                  </defs>
-                  
-                  {selectedConflict && (
-                  <AnimatePresence mode="wait">
-                    <motion.g
-                      key={selectedConflict.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.8 }}
-                    >
-                      {/* Interaction Nodes */}
-                      {selectedConflict.nodes?.map((node: any, idx: number) => {
-                        const nextNode = selectedConflict.nodes[idx + 1];
-                        return (
-                          <g key={node.id}>
-                            {nextNode && (
-                              <motion.line 
-                                x1={node.x + 400} // Centering adjustment
-                                y1={node.y + 10} 
-                                x2={nextNode.x + 400} 
-                                y2={nextNode.y + 10} 
-                                stroke="url(#edgeGradient)"
-                                strokeWidth="2"
-                                strokeDasharray="10 5"
-                                markerEnd="url(#arrow)"
-                                initial={{ pathLength: 0 }}
-                                animate={{ pathLength: 1 }}
-                                transition={{ duration: 1.5, ease: "anticipate" }}
-                              />
-                            )}
-                            <foreignObject 
-                              x={node.x + 330} 
-                              y={node.y - 30} 
-                              width="160" 
-                              height="120"
-                              className="pointer-events-auto"
-                            >
-                              <motion.div 
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                whileHover={{ y: -2 }}
-                                className="w-full h-full flex flex-col items-center justify-center"
-                              >
-                                <div className="h-16 w-16 bg-white border-[0.5px] border-border/40 flex items-center justify-center shadow-lg mb-3">
-                                  <FileText className={cn(
-                                    "h-8 w-8",
-                                    idx === 0 ? "text-primary" : "text-muted-foreground"
-                                  )} />
-                                </div>
-                                <span className="tech-label text-center px-2 bg-white/90 backdrop-blur-sm border-[0.5px] border-border/10 py-1">
-                                  {node.title}
-                                </span>
-                              </motion.div>
-                            </foreignObject>
-                          </g>
-                        );
-                      })}
-                    </motion.g>
-                  </AnimatePresence>
-                  )}
-                </svg>
-                
-                {/* Floating Detail Card - High Fidelity Intelligence */}
-                {selectedConflict && (
-                <div className="absolute bottom-6 left-6 right-6 glass-intel p-8 border-[0.5px] border-white/40 flex flex-col xl:flex-row gap-10 items-start">
-                   <div className="flex-1">
-                      <div className="flex items-center gap-3 text-primary mb-4">
-                         <Info className="h-5 w-5" />
-                         <span className="tech-label text-foreground/80 uppercase tracking-tighter">Engine Reasoning & Detection Provenance</span>
-                      </div>
-                      <p className="text-xl text-foreground font-serif leading-relaxed italic pr-4 mb-6">
-                        "{selectedConflict.reasoning}"
-                      </p>
-                      
-                      {/* Provenance Stepper Section */}
-                      <div className="pt-6 border-t border-border/10">
-                        <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Autonomous Detection Lifecycle</h5>
-                        <div className="flex overflow-x-auto pb-2 gap-8 custom-scrollbar no-scrollbar">
-                          {[
-                            { id: "mon", label: "Monitor", status: "COMPLETED" },
-                            { id: "emb", label: "Embed", status: "COMPLETED" },
-                            { id: "vec", label: "Semantic Search", status: "COMPLETED" },
-                            { id: "vld", label: "Cross-Reference", status: "COMPLETED" },
-                            { id: "cfm", label: "Conflict Match", status: "COMPLETED" },
-                            { id: "fin", label: "Risk Scored", status: "COMPLETED" }
-                          ].map((step, idx) => (
-                            <div key={step.id} className="flex items-center gap-3 shrink-0">
-                              <div className="flex flex-col items-center">
-                                <div className="h-6 w-6 rounded-full border border-primary/30 flex items-center justify-center bg-primary/5">
-                                  <ShieldCheck className="h-3 w-3 text-primary" />
-                                </div>
-                                {idx < 5 && <div className="h-4 w-[1px] bg-border/20 mt-1" />}
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="tech-label text-[9px] text-foreground">{step.label}</span>
-                                <span className="text-[8px] font-mono text-primary/60 uppercase">Verified</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="mt-6 flex gap-4">
-                        <span className="font-mono text-[9px] bg-primary/5 text-primary px-2 py-1 uppercase tracking-tighter">AGENT: CORTEX-FIND-09</span>
-                        <span className="font-mono text-[9px] bg-secondary/5 text-secondary px-2 py-1 uppercase tracking-tighter">VECTOR: {selectedConflict.target.id}</span>
-                      </div>
-                   </div>
-                   
-                   <div className="flex flex-col md:flex-row xl:flex-col justify-between gap-4 min-w-[240px] w-full xl:w-auto h-full pt-10 xl:pt-4">
-                      <button className="flex-1 flex items-center justify-center gap-3 px-6 py-3 bg-white/60 border-[0.5px] border-border/20 text-foreground tech-label hover:bg-white transition-all shadow-sm">
-                        <ExternalLink className="h-4 w-4" />
-                        Provenance Link
-                      </button>
-                      {!isReadOnly && (
-                        <button 
-                          onClick={() => {
-                            addConflictToWorkbench(selectedConflict);
-                            toast.success("Conflict queued for legal remediation.");
-                            router.push("/dashboard/amendment-workbench");
-                          }}
-                          className="flex-1 flex items-center justify-center gap-3 px-6 py-3 bg-primary text-white tech-label hover:opacity-90 transition-all shadow-xl shadow-primary/20">
-                          <Zap className="h-4 w-4" />
-                          Mitigate Risk
-                        </button>
-                      )}
-                      <div className="p-3 bg-amber-primary/5 border border-amber-primary/10 rounded-md">
-                         <p className="text-[10px] leading-tight text-amber-primary font-medium">
-                           Neural context suggests a 94.2% semantic certainty in this detected contradiction.
-                         </p>
-                      </div>
-                   </div>
+        {/* Right Panel: Network Graph (65%) */}
+        <section className="flex-1 p-6 relative bg-surface flex flex-col overflow-hidden">
+          <div className="glass-panel flex-1 border border-outline-variant/20 flex flex-col shadow-[0_24px_48px_-12px_rgba(82,68,56,0.06)] relative">
+            {/* Graph Toolbar */}
+            <div className="p-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/50">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                  <span className="font-label text-[9px] font-bold uppercase">Banking Sector</span>
                 </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-tertiary"></div>
+                  <span className="font-label text-[9px] font-bold uppercase">Markets & Securities</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+                  <span className="font-label text-[9px] font-bold uppercase">Active Conflict Bridge</span>
+                </div>
               </div>
-           </div>
+              <div className="flex items-center gap-1">
+                <button className="p-1.5 hover:bg-stone-200/50 transition-all"><span className="material-symbols-outlined text-lg">zoom_in</span></button>
+                <button className="p-1.5 hover:bg-stone-200/50 transition-all"><span className="material-symbols-outlined text-lg">zoom_out</span></button>
+                <button className="p-1.5 hover:bg-stone-200/50 transition-all ml-2"><span className="material-symbols-outlined text-lg">filter_center_focus</span></button>
+              </div>
+            </div>
 
-        </div>
+            {/* Graph Workspace Area */}
+            <div className="flex-1 relative overflow-hidden bg-[radial-gradient(#d7c3b3_0.5px,transparent_0.5px)] [background-size:16px_16px]">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative w-full h-full max-w-[800px] max-h-[600px]">
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+                    <defs>
+                      <marker id="arrow" viewBox="0 0 10 10" refX="25" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#ba1a1a" />
+                      </marker>
+                    </defs>
+                    
+                    {selectedConflict && selectedConflict.nodes?.map((node: any, idx: number) => {
+                      const nextNode = selectedConflict.nodes[idx + 1];
+                      if (!nextNode) return null;
+                      return (
+                        <motion.line 
+                          key={`edge-${idx}`}
+                          x1={`${node.x + 50}%`}
+                          y1={`${node.y + 50}%`}
+                          x2={`${nextNode.x + 50}%`}
+                          y2={`${nextNode.y + 50}%`}
+                          stroke="#ba1a1a"
+                          strokeWidth="1.5"
+                          strokeDasharray="6 4"
+                          markerEnd="url(#arrow)"
+                          initial={{ pathLength: 0, opacity: 0 }}
+                          animate={{ pathLength: 1, opacity: 0.4 }}
+                          transition={{ duration: 1, delay: idx * 0.2 }}
+                        />
+                      );
+                    })}
+                  </svg>
+
+                  {/* Central Node Visual */}
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <div className="w-48 h-48 rounded-full border border-error/20 flex items-center justify-center relative">
+                      <div className="absolute inset-0 rounded-full border border-error/10 animate-[ping_3s_ease-in-out_infinite]" />
+                      <div className="w-32 h-32 rounded-full bg-error/5 flex flex-col items-center justify-center text-center p-4 border border-error/5 group hover:bg-error/10 transition-all">
+                        <span className="font-label text-[10px] font-bold text-error uppercase mb-1">Impact Event</span>
+                        <span className="font-headline text-lg font-bold text-on-surface tracking-tight">
+                          {selectedId ? `#${selectedId.slice(-4)}` : "SEM-09"}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Peripheral Nodes Mapping */}
+                  {selectedConflict?.nodes?.map((node: any, idx: number) => (
+                    <motion.div
+                      key={node.id || idx}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.1 }}
+                      style={{ left: `${node.x + 50}%`, top: `${node.y + 50}%` }}
+                      className="absolute -translate-x-1/2 -translate-y-1/2"
+                    >
+                      <div className="bg-surface border border-outline-variant/30 p-2 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+                        <div className={cn(
+                          "w-10 h-10 flex items-center justify-center text-white font-black text-xs",
+                          idx % 2 === 0 ? "bg-secondary" : "bg-tertiary"
+                        )}>
+                          {node.title?.split(" ")[0]?.slice(0, 4)?.toUpperCase() || "REG"}
+                        </div>
+                        <span className="block font-label text-[8px] mt-1 font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px]">
+                          {node.title || "Vector-X"}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floating Legend Overlay */}
+              <div className="absolute bottom-6 right-6 p-4 glass-panel border border-outline-variant/20 max-w-xs shadow-xl">
+                <h4 className="font-label text-[10px] font-bold uppercase mb-3 text-primary">Semantic Proximity Analysis</h4>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px] font-bold">
+                      <span className="text-on-surface-variant uppercase tracking-widest">Similarity Score</span>
+                      <span className="text-primary font-mono text-[12px]">0.922</span>
+                    </div>
+                    <div className="w-full bg-stone-200 h-1 relative overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: "92.2%" }}
+                        className="bg-primary h-full" 
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant font-body italic leading-relaxed">
+                    Overlapping operational mandates detected in the vector space with 92% semantic alignment but contradictory specific requirements.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Intelligence Drawer (Detail View) */}
+        <AnimatePresence>
+          {isDrawerOpen && (
+            <>
+              {/* Overlay Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsDrawerOpen(false)}
+                className="fixed inset-0 bg-stone-900/20 backdrop-blur-[2px] z-[60] left-64"
+              />
+              
+              <motion.div 
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="fixed top-0 right-0 h-full w-[540px] bg-[#F7F5F0] z-[70] shadow-[-32px_0_64px_-20px_rgba(82,68,56,0.15)] flex flex-col border-l border-outline-variant/20"
+              >
+                {/* Drawer Header */}
+                <div className="p-8 pb-4">
+                  <div className="flex justify-between items-center mb-8">
+                    <button 
+                      onClick={() => setIsDrawerOpen(false)}
+                      className="group p-2 hover:bg-stone-100 transition-all rounded-full"
+                    >
+                      <X className="h-5 w-5 text-on-surface-variant group-hover:rotate-90 transition-transform duration-300" />
+                    </button>
+                    <div className="flex gap-3">
+                      <button className="text-[10px] font-label font-bold uppercase px-4 py-1.5 border border-outline-variant hover:bg-stone-200/50 transition-all">Audit JSON</button>
+                      <button className="text-[10px] font-label font-bold uppercase px-4 py-1.5 bg-on-surface text-surface hover:opacity-90 transition-all">Share Insight</button>
+                    </div>
+                  </div>
+                  <p className="font-label text-[11px] text-error font-bold tracking-[0.2em] uppercase mb-2">Critical Contradiction Detected</p>
+                  <h2 className="font-headline text-3xl font-extrabold text-on-surface leading-tight tracking-tight">
+                    {selectedConflict?.title || "Divergence in Jurisdictional Compliance"}
+                  </h2>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 pt-4 space-y-12 no-scrollbar pb-10">
+                  {/* Detection Pipeline Stepper */}
+                  <section>
+                    <h3 className="font-label text-[10px] font-bold uppercase text-outline mb-8 tracking-widest border-b border-outline-variant/10 pb-2">Detection Pipeline</h3>
+                    <div className="flex flex-col gap-8 relative">
+                      <div className="absolute left-[7px] top-2 bottom-2 w-[1px] bg-outline-variant/40"></div>
+                      
+                      {[
+                        { label: "Topic Identification", desc: "Categorized as: Financial Crime > AML Thresholds", icon: <ShieldCheck className="h-3 w-3" />, status: "success" },
+                        { label: "Semantic Corelation", desc: "Cross-Reg correlation score: 0.941", icon: <ShieldCheck className="h-3 w-3" />, status: "success" },
+                        { label: "Neural Inference Check", desc: "Result: DETECTED CONTRADICTION", icon: <Zap className="h-3 w-3" />, status: "warning" },
+                        { label: "Knowledge Graph Indexing", desc: "Graph update pending human verification", icon: <span className="text-[8px] font-bold">4</span>, status: "pending" }
+                      ].map((step, idx) => (
+                        <div key={idx} className={cn("flex gap-6 items-start relative z-10", step.status === "pending" && "opacity-50")}>
+                          <div className={cn(
+                            "w-4 h-4 flex items-center justify-center text-white mt-1 shrink-0",
+                            step.status === "success" ? "bg-tertiary" : step.status === "warning" ? "bg-amber-600" : "bg-surface border border-outline text-on-surface"
+                          )}>
+                            {step.icon}
+                          </div>
+                          <div className="space-y-1">
+                            <p className="font-label text-[11px] font-bold text-on-surface uppercase tracking-tight">{step.label}</p>
+                            <p className="text-[10px] text-on-surface-variant font-body leading-relaxed">{step.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Side-by-Side Comparison */}
+                  <section>
+                    <h3 className="font-label text-[10px] font-bold uppercase text-outline mb-6 tracking-widest border-b border-outline-variant/10 pb-2">Comparative Analysis</h3>
+                    <div className="space-y-4">
+                      <div className="bg-secondary/5 border-l-2 border-secondary p-5">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="font-label text-[10px] font-bold text-secondary uppercase tracking-widest">{selectedConflict?.source?.id || "REG-A"}</span>
+                          <span className="font-label text-[9px] text-outline font-bold">MANDATE-01</span>
+                        </div>
+                        <p className="text-sm text-on-secondary-container leading-relaxed italic font-body">
+                          {selectedConflict?.source?.text || "The primary regulator establishes a standard for aggregate volume monitoring at a higher threshold."}
+                        </p>
+                      </div>
+                      <div className="flex justify-center py-2">
+                        <span className="font-headline text-5xl font-extrabold text-error opacity-20">≠</span>
+                      </div>
+                      <div className="bg-tertiary/5 border-l-2 border-tertiary p-5">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="font-label text-[10px] font-bold text-tertiary uppercase tracking-widest">{selectedConflict?.target?.id || "REG-B"}</span>
+                          <span className="font-label text-[9px] text-outline font-bold">MANDATE-22</span>
+                        </div>
+                        <p className="text-sm text-on-tertiary-container leading-relaxed italic font-body">
+                          {selectedConflict?.target?.text || "The sector-specific authority imposes a more restrictive reporting criterion for the same activity."}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Engine Reasoning */}
+                  <section>
+                    <h3 className="font-label text-[10px] font-bold uppercase text-outline mb-4 tracking-widest">Procedural Reasoning</h3>
+                    <div className="bg-surface-container p-6 border border-outline-variant/10 shadow-inner">
+                      <p className="text-xs text-on-surface-variant font-body leading-loose">
+                        {selectedConflict?.reasoning}. The divergence creates an <span className="text-error font-bold italic">operational dead-zone</span> where reporting under one mandate triggers a compliance gap in the other, necessitating a unified reconciliation policy.
+                      </p>
+                    </div>
+                  </section>
+
+                  {/* Affected Entities */}
+                  <section className="pb-8">
+                    <h3 className="font-label text-[10px] font-bold uppercase text-outline mb-4 tracking-widest text-primary">Target Asset Classes</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {["Foreign Intermediaries", "Category-II FPIs", "NBFC-D Carriers", "Global Custodians"].map(tag => (
+                        <span key={tag} className="px-3 py-1.5 bg-stone-200/50 text-stone-700 font-label text-[9px] font-bold uppercase border border-stone-300/30">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+
+                {/* Drawer Footer Actions */}
+                <div className="p-8 border-t border-outline-variant/20 bg-surface-container-low flex gap-4">
+                  {!isReadOnly && (
+                    <button 
+                      onClick={() => {
+                        addConflictToWorkbench(selectedConflict);
+                        toast.success("Conflict queued for legal mitigation.");
+                        router.push("/dashboard/amendment-workbench");
+                      }}
+                      className="flex-1 bg-primary text-on-primary py-4 font-label text-[11px] font-bold uppercase tracking-widest hover:brightness-110 shadow-lg shadow-primary/20 transition-all active:scale-95"
+                    >
+                      Mitigate Risk
+                    </button>
+                  )}
+                  <button className="flex-1 border border-on-surface text-on-surface py-4 font-label text-[11px] font-bold uppercase tracking-widest hover:bg-on-surface hover:text-surface transition-all active:scale-95">
+                    Stage Report
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
+
+      <style jsx global>{`
+        .font-headline { font-family: 'Newsreader', serif; }
+        .font-label { font-family: 'Space Grotesk', monospace; }
+        .glass-panel {
+          background: rgba(247, 245, 240, 0.72);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
 }

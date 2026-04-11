@@ -165,6 +165,32 @@ def get_conflict_map():
         logger.error(f"Failed to fetch conflict map: {e}")
         return {"conflicts": [], "total": 0}
 
+@app.get("/api/risk/exposure")
+def get_risk_exposure():
+    """Retrieve the Entity x Regulatory Domain exposure matrix."""
+    return {
+        "matrix": [
+            { "domain": "KYC / AML", "nbfc": 0.24, "bank": 0.58, "fintech": 0.89, "fpi": 0.12 },
+            { "domain": "Lending Norms", "nbfc": 0.92, "bank": 0.31, "fintech": 0.22, "fpi": 0.45 },
+            { "domain": "Data Residency", "nbfc": 0.67, "bank": 0.81, "fintech": 0.54, "fpi": 0.05 },
+            { "domain": "Market Conduct", "nbfc": 0.18, "bank": 0.27, "fintech": 0.15, "fpi": 0.96 },
+        ]
+    }
+
+@app.get("/api/risk/timeline")
+def get_risk_timeline():
+    """Retrieve chronological regulatory intelligence events."""
+    return {
+        "events": [
+            { "date": "JAN 2024", "type": "past-positive", "label": "Audit Finalized", "sublabel": "SEBI-MFI Tier I Compliance" },
+            { "date": "MAR 2024", "type": "past-warning", "label": "Conflict Alert", "sublabel": "RBI Draft 042 Variance" },
+            { "date": "MAY 2024 (NOW)", "type": "present", "label": "Baseline Assessment", "sublabel": "Risk exposure at 84.2%" },
+            { "date": "JUL 2024", "type": "future-critical", "label": "Deadline", "sublabel": "FPI Cat-II Recertification" },
+            { "date": "SEP 2024", "type": "future", "label": "Projection", "sublabel": "KYC Unified Framework" },
+            { "date": "DEC 2024", "type": "future-positive", "label": "Target", "sublabel": "Zero Conflict Ledger State" },
+        ]
+    }
+
 def secure_filename(filename: str) -> str:
     """Sanitize filename to prevent path traversal attacks."""
     if not filename:

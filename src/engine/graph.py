@@ -125,13 +125,22 @@ class RegulatoryGraph:
                 
         return conflicts
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> Dict[str, Any]:
         """Return summary statistics for the dashboard."""
         circulars_count = len([n for n, d in self.graph.nodes(data=True) if d.get('type') == 'Circular'])
         conflicts_count = len([ (u, v) for u, v, d in self.graph.edges(data=True) if d.get('type') == 'CONTRADICTS']) // 2
+        
+        # Exposure Score: Heuristic based on conflict density
+        # Baseline 100, deduct 5 per conflict, weighted by scale
+        score = 100.0
+        if circulars_count > 0:
+            # More circulars = more complexity, so conflicts are more expensive
+            score = max(0, 100 - (conflicts_count * 5))
+            
         return {
             "total_circulars": circulars_count,
-            "total_conflicts": conflicts_count
+            "total_conflicts": conflicts_count,
+            "exposure_score": round(score, 1)
         }
 
 if __name__ == "__main__":
