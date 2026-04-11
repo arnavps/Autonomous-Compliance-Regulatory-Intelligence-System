@@ -140,10 +140,17 @@ export default function DocAnalyzerPage() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setUploadedFiles(prev => prev.map((f, idx) => idx === i ? { ...f, isSyncing: true } : f));
-                  setTimeout(() => {
-                    setUploadedFiles(prev => prev.map((f, idx) => idx === i ? { ...f, isSyncing: false, date: "NOW" } : f));
-                    toast.success(`Synched: ${file.name} vectors updated.`);
-                  }, 2000);
+                  apiService.triggerIngestion().then(data => {
+                    toast.success(`Sync Started: ${file.name} vectors update initiated.`, {
+                       description: data.message
+                    });
+                    setTimeout(() => {
+                      setUploadedFiles(prev => prev.map((f, idx) => idx === i ? { ...f, isSyncing: false, date: "NOW" } : f));
+                    }, 5000);
+                  }).catch(err => {
+                    setUploadedFiles(prev => prev.map((f, idx) => idx === i ? { ...f, isSyncing: false } : f));
+                    toast.error("Sync Failed: Orchestrator offline.");
+                  });
                 }}
                 className={cn(
                   "tech-label transition-colors",

@@ -50,24 +50,39 @@ export default function ImpactReportsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportList, setReportList] = useState(reports);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     toast.info("Synthesizing multi-modal impact data...", { duration: 3000 });
     
-    setTimeout(() => {
+    try {
+      const { task_id, message } = await apiService.triggerImpactReport({ type: "EXECUTIVE_SUMMARY" });
+      toast.success("Orchestration Pipeline Engaged", { description: message });
+
+      // Poll for completion
+      apiService.pollTaskStatus(task_id, (status) => {
+        if (status.state === "SUCCESS") {
+          setIsGenerating(false);
+          const newReport = {
+            id: `REP-${task_id.substring(0, 8).toUpperCase()}`,
+            title: "Dynamic Regulatory Impact Report",
+            status: "Finalized",
+            date: new Date().toISOString().split('T')[0],
+            impactScore: Math.floor(Math.random() * 30) + 60,
+            trend: "up",
+            author: "ACRIS Neural Engine"
+          };
+          setReportList(prev => [newReport, ...prev]);
+          toast.success("Executive report finalized and cryptographically signed.");
+        }
+      }).catch(err => {
+        setIsGenerating(false);
+        toast.error("Synthesis Failed", { description: err.message });
+      });
+
+    } catch (err) {
       setIsGenerating(false);
-      const newReport = {
-        id: `REP-2026-${Math.floor(Math.random() * 900) + 100}`,
-        title: "Dynamic Regulatory Impact Report",
-        status: "Finalized",
-        date: new Date().toISOString().split('T')[0],
-        impactScore: 78,
-        trend: "up",
-        author: "ACRIS Neural Engine"
-      };
-      setReportList([newReport, ...reportList]);
-      toast.success("Executive report finalized and cryptographically signed.");
-    }, 4000);
+      toast.error("System Offline", { description: "Impact engine not responding." });
+    }
   };
 
   return (

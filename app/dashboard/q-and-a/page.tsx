@@ -148,7 +148,17 @@ export default function QnAPage() {
                     {msg.role === "ai" && msg.citations && msg.citations.length > 0 && (
                       <div className="mt-8 pt-8 border-t-[0.5px] border-border/10">
                         <div className="flex items-center justify-between mb-6">
-                          <span className="tech-label text-muted-foreground/30">Verification Citations</span>
+                          <div className="flex flex-col gap-1">
+                            <span className="tech-label text-muted-foreground/30">Verification Citations</span>
+                            {/* @ts-ignore - model_used exists in backend response */}
+                            {msg.model_used && (
+                              <span className="text-[8px] font-mono text-primary/60 uppercase">
+                                PROCESSED BY: {msg.model_used}
+                                {/* @ts-ignore */}
+                                {msg.fallback_triggered && " (SECURE FALLBACK)"}
+                              </span>
+                            )}
+                          </div>
                           {msg.confidence && (
                             <span className={cn("text-[10px] font-mono font-bold uppercase tracking-widest", getConfidenceColor(msg.confidence))}>
                               {msg.confidence}% CONFIDENCE
