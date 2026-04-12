@@ -160,5 +160,13 @@ The script initializes Redis, starts the Celery worker, mounts the FastAPI serve
 - **Agent Health Logs**: SRE-grade logging to `logs/agent_health.log` for failure trace analysis.
 
 ---
+## 8. Contributors
+
+| Name | GitHub | Profile |
+| :--- | :--- | :--- |
+| **Arnav Shirwadkar** | [@arnavps](https://github.com/arnavps) | <img src="https://github.com/arnavps.png" width="50" height="50" style="border-radius: 50%;" /> |
+| **GENE-X-LIVES** | [@GENE-X-LIVES](https://github.com/GENE-X-LIVES) | <img src="https://github.com/GENE-X-LIVES.png" width="50" height="50" style="border-radius: 50%;" /> |
+
+---
 *Built for Regulatory Intelligence. Optimized for Traceable Compliance.*
 
