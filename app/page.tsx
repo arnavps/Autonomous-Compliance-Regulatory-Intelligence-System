@@ -53,7 +53,7 @@ export default function LandingPage() {
             <img 
               alt="Complex Ledger Mesh" 
               className="w-full h-full object-cover scale-110 blur-[1px] mix-blend-multiply" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0oeQoEpPg-KtYzL4hJZGpbNgqFo03XBG1aFkioFEUukTmvb3HMRMfBN4PtlYiWE56xwlstnRAib0F7V1efvxmPmQLGei5407xyYBZ1lNq8xd0_IjEScWMM7OAGrQpkRRUqbm3YO_MyyxbZhDxIxB3VCWq2ZyemLvmZ59t02UslL9ASKy4_kp1SN8WrTjRV_-jc5zJJLrJUY5tv7fueior9Bx66fQnqu_sk3GhNr1egc6qo9lU6yG008ZthffaAu5eHhnEBZy9UGc"
+              src="/sovereign_intelligence_bg.png"
             />
             <div className="absolute inset-0 glass-24 opacity-60" />
           </div>

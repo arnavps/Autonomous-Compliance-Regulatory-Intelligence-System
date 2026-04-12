@@ -167,7 +167,7 @@ export default function LoginPage() {
           <img
             className="w-full h-full object-cover grayscale mix-blend-overlay"
             alt="Technical Background"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1b_g6caIMI2M-nsrU26zh_koJNQGJ9AXI7ueIyxMFuph8_fCx3tDToZk3ywb17lPOPPRd3ZWWydJu2xhbb3NtAFslh72wqYSdpkzlBDo56kiQgtQBKJRREaWoTFl8P8ZJpDFWNuRj-B65eoX7_DqAdPJur2TUBMgZjsmd35I9Stcahh1HLWNzKysEloMygxmvDqMhocZ6KuIsQQc35yeONUP3K7IQyTkRMNhV7lzRNGRqFm8TlvnrePyzyxxS6vD3otwu0JJ9piE"
+            src="/technical_dashboard_bg.png"
           />
         </div>
 
